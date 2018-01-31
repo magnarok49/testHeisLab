@@ -1,10 +1,9 @@
-#include <iostream>
+#include <stdio.h>
+
 
 int main() {
 
-    std::cout << "hello world";
-    std::cout << "this is even more code!";
-    std::cout << "Enter dankmemes pls";
+    printf("Heisann, dette er en test");
     system("pause");
     return 0;
 }
