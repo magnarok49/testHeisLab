@@ -4,6 +4,6 @@
 int main() {
 
     printf("Heisann, dette er en test");
-    system("pause");
+    getchar();
     return 0;
 }
