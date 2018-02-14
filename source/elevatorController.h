@@ -1,6 +1,8 @@
+#include <stdbool.h>
 
-
-struct floorButton {
+typedef struct order_states {
     bool up;
     bool down;
-}
+    bool elev;
+} orderStruct;
+
