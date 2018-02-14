@@ -20,7 +20,6 @@ int main() {
         } else if (elev_get_floor_sensor_signal() == 0) {
             elev_set_motor_direction(DIRN_UP);
         }
-
         if(elev_get_button_signal(BUTTON_COMMAND, 0)){
             elev_set_door_open_lamp(1);    
         }
