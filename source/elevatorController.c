@@ -7,6 +7,9 @@
 orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
 int lastFloor = -1; // 0 through N_FLOORS - 1
 bool moving = 0;
+tag_elev_motor_direction dir = 0;
+
+
 
 
 double get_wall_time(void)
@@ -17,7 +20,4 @@ double get_wall_time(void)
 }
 
 
-void start_timer(void)
-{
-    timer = get_wall_time();
-}
+

@@ -5,3 +5,4 @@ void openDoor();
 void closeDoor();
 
 typedef double timer;
+bool timerActive = false;

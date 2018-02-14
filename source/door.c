@@ -3,6 +3,7 @@
 #include "elevatorController.h"
 
 timer doorTimer;
+bool timerActive = false;
 
 void openDoor()
 {
