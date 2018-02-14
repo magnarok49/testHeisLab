@@ -2,7 +2,7 @@
 #include "elev.h"
 #include "elevatorController.h"
 
-
+timer doorTimer;
 
 void openDoor()
 {
