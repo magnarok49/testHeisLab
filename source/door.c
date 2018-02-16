@@ -1,6 +1,7 @@
 #include "door.h"
 #include "elev.h"
 #include "elevatorController.h"
+#include <stdbool.h>
 
 timer doorTimer;
 bool timerActive = false;

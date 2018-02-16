@@ -1,3 +1,4 @@
+#include <stdbool.h>
 
 typedef enum doorStatus{OPEN = 1,CLOSED = 0};
 
