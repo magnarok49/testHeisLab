@@ -10,7 +10,7 @@ typedef double wall_time;
 
 double get_wall_time(void);
 
-typdef enum elev_status { //-1 for beetween floors, and 0-3 for stationary on a floor.
+typdef enum elev_status {
     BEETWEEN_FLOORS = -1,
     FLOOR_ONE,
     FLOOR_TWO,
