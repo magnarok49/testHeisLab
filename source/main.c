@@ -25,7 +25,7 @@ int main() {
             elev_set_motor_direction(DIRN_UP);
         }
         //INSERT CODE HERE
-        
+        pollButtons();
 
 
         
