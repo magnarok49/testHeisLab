@@ -201,8 +201,11 @@ void reachedFloor(int floor)
     {
         shiftFromQueue(target_floor_queue,target_floor_queue_size);
         orders[floor].up = 0;
+        elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
         orders[floor].down = 0;
+        elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
         orders[floor].elev = 0;
+        elev_set_button_lamp(BUTTON_COMMAND,floor,0);
         currentStatus = floor;
         moveElevator(0);
     }
