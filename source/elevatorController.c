@@ -8,7 +8,7 @@ orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
 int lastFloor = -1; // 0 through N_FLOORS - 1, should match elevator status light on panel..
 elev_status_enum currentStatus = -1;
 bool moving = 0;
-tag_elev_motor_direction dir = 0; // 1 for up, 0 for stationary and -1 for down
+elev_motor_direction_t dir = 0; // 1 for up, 0 for stationary and -1 for down
 int target_floor_queue[N_FLOORS] = {-1,-1,-1,-1}; //investigate reducing size of queue
 
 
@@ -62,7 +62,7 @@ void driveToInitialState()
    
 }
 
-void moveElevator(tag_elev_motor_direction direction)
+void moveElevator(elev_motor_direction_t direction)
 {
     dir = direction;
     moving = 1;

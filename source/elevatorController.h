@@ -26,4 +26,4 @@ void stopElevator(int floor);
 
 void driveToInitialState(void);
 
-void moveElevator(tag_elev_motor_direction direction);
+void moveElevator(elev_motor_direction_t direction);
