@@ -28,7 +28,9 @@ int main() {
         }
         //INSERT CODE HERE
         pollButtons();
-        
+        if(currentStatus != lastFloor && elev_get_floor_sensor_signal() > -1){
+            reachedFloor(elev_get_floor_sensor_signal());
+        }
 
         
 
