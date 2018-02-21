@@ -6,6 +6,7 @@
 #include <assert.h>
 #include "utilities.h"
 #include <stdlib.h>
+#include "door.h"
 
 
 orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
