@@ -234,11 +234,11 @@ void reachedFloor(int floor)
 
 void pollButtons(){
     for(int i = 0; i < N_FLOORS; i++){
-        if((!orders[i].up) && elev_get_button_signal(BUTTON_CALL_UP,i)){
+        if(floor < (N_FLOORS - 1) &&(!orders[i].up) && elev_get_button_signal(BUTTON_CALL_UP,i)){
             elev_set_button_lamp(BUTTON_CALL_UP, i, 1);
             orders[i].up = 1;
         }
-        if((!orders[i].down) && elev_get_button_signal(BUTTON_CALL_DOWN,i)){
+        if(floor > 0 &&(!orders[i].down) && elev_get_button_signal(BUTTON_CALL_DOWN,i)){
             elev_set_button_lamp(BUTTON_CALL_DOWN, i, 1);
             orders[i].down = 1;
         }
