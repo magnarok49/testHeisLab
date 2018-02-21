@@ -30,31 +30,4 @@ void checktimer(double *timer)
 
 
 
-void emergencyStop(int *queue, int sizeOfQueue)
-{
-    stopElevator(-1);
-    clearQueue(queue,sizeOfQueue);
-    elev_set_stop_lamp(1);
-    if (elev_get_floor_sensor_signal() != -1)
-    {
-        openDoor();
-       
-    }
-    while (elev_get_stop_signal())
-    {
-        continue;
-    }
-    elev_set_stop_lamp(0);
 
-    if (elev_get_floor_sensor_signal() != -1)
-    {
-        doorTimer = get_wall_time();
-        while((doorTimer != 0) && ((doorTimer - get_wall_time()) < 3))
-        {
-            continue;
-        }
-        closeDoor();
-    }
-
-    
-}

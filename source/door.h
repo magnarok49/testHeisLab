@@ -10,4 +10,3 @@ typedef double timer;
 void checkTimer(double *timer);
 
 
-void emergencyStop();
