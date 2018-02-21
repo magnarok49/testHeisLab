@@ -6,7 +6,6 @@ void openDoor();
 void closeDoor();
 
 typedef double timer;
-bool timerActive = false;
 
 void checkTimer(double *timer);
 
