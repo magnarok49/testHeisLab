@@ -159,6 +159,7 @@ void moveElevator(elev_motor_direction_t direction)
     currentStatus = -1;
     closeDoor();
     elev_set_motor_direction(dir);
+}
 
 }
 
@@ -227,5 +228,22 @@ void reachedFloor(int floor)
             elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
         }
         moveElevator(0);
+    }
+}
+
+void pollButtons(){
+    for(int i = 0; i < N_FLOORS; i++){
+        if((!orders[i].up) && elev_get_button_signal(BUTTON_CALL_UP,i)){
+            elev_set_button_lamp(BUTTON_CALL_UP, i, 1);
+            orders[i].up = 1;
+        }
+        if((!orders[i].down) && elev_get_button_signal(BUTTON_CALL_DOWN,i)){
+            elev_set_button_lamp(BUTTON_CALL_DOWN, i, 1);
+            orders[i].down = 1;
+        }
+        if((!orders[i].elev) && elev_get_button_signal(BUTTON_COMMAND,i)){
+            elev_set_button_lamp(BUTTON_COMMAND, i, 1);
+            orders[i].elev = 1;
+        }
     }
 }
