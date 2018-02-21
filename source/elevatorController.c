@@ -121,7 +121,9 @@ void stopElevator(int floor)
         elev_set_button_lamp(2,floor,0);
         elev_set_button_lamp(0,floor,0);
         elev_set_button_lamp(1,floor,0);
-        printf("Arrived at floor ", string(floor)," successfully");
+        printf("Arrived at floor ");
+        printf(floor);
+        printf(" successfully");
     }
 }
 
