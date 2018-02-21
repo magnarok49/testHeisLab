@@ -140,16 +140,16 @@ void stopElevator(int floor)
 
 void driveToInitialState()
 {
-    while (elev_get_floor_sensor_signal() == -1)
+    while (elev_get_floor_sensor_signal() < 0)
     {
        
         moveElevator(-1);
        
     }
-   moveElevator(0);
-   currentStatus = elev_get_floor_sensor_signal();
-   lastFloor = elev_get_floor_sensor_signal();
-   elev_set_floor_indicator(1);
+    moveElevator(0);
+    currentStatus = elev_get_floor_sensor_signal();
+    lastFloor = currentStatus;
+    elev_set_floor_indicator(currentStatus);
    
 }
 
