@@ -48,7 +48,7 @@ void stopElevator(int floor)
 
 void driveToInitialState()
 {
-   while (elev_get_floor_sensor_signal == -1)
+   while (elev_get_floor_sensor_signal() == -1)
    {
        
        moving = 1;
