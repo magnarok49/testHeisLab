@@ -5,7 +5,6 @@
 #include <stdio.h>
 
 
-bool timerActive = false;
 
 void openDoor()
 {
