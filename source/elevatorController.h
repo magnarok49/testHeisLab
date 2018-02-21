@@ -20,6 +20,8 @@ typedef enum elev_status {
     FLOOR_FOUR
 } elev_status_enum;
 
+void shiftFromQueue(int* queue, int sizeOfQueue);
+void addToQueue(int* queue, int sizeOfQueue, int floorToAdd);
 
 // stops elevaotr if it is at desired floor, -1 stops elevator immidiately
 void stopElevator(int floor);
