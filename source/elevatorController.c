@@ -104,6 +104,14 @@ void addToQueue(int* queue, int sizeOfQueue, int floorToAdd){
     }
 }
 
+void clearQueue(int* queue, int sizeOfQueue){
+    int i = 0;
+    while(queue[i] > -1 && i < sizeOfQueue){
+        queue[i] = -1;
+        ++i;
+    }
+}
+
 // stops elevaotr if it is at desired floor, -1 stops elevator immidiately
 void stopElevator(int floor)
 {
