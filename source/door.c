@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-timer doorTimer;
+
 bool timerActive = false;
 
 void openDoor()

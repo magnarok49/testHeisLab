@@ -181,7 +181,7 @@ void emergencyStop(int *queue, int sizeOfQueue)
 
     if (elev_get_floor_sensor_signal() != -1)
     {
-        doorTimer = get_wall_time();
+        timer doorTimer = get_wall_time();
         while((doorTimer != 0) && ((doorTimer - get_wall_time()) < 3))
         {
             continue;
