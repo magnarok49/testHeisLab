@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "utilities.h"
+#include <stdlib.h>
 
 
 orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
