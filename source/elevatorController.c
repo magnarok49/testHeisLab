@@ -161,8 +161,6 @@ void moveElevator(elev_motor_direction_t direction)
     elev_set_motor_direction(dir);
 }
 
-}
-
 void emergencyStop(int *queue, int sizeOfQueue)
 {
     stopElevator(-1);
