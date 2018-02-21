@@ -1,5 +1,6 @@
 #include "elev.h"
 #include "elevatorController.h"
+#include "door.h"
 #include <stdio.h>
 
 
