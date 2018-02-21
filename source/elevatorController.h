@@ -35,4 +35,5 @@ void clearQueue(int* queue, int sizeOfQueue);
 void emergencyStop();
 
 void reachedFloor(int floor);
+
 void pollButtons();
