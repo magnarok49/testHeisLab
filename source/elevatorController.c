@@ -190,3 +190,42 @@ void emergencyStop(int *queue, int sizeOfQueue)
 
     
 }
+
+
+
+
+void reachedFloor(int floor)
+{
+
+    lastFloor = floor;
+    if (target_floor_queue[0] == floor)
+    {
+        shiftFromQueue(target_floor_queue,target_floor_queue_size);
+        orders[floor].up = 0;
+        orders[floor].down = 0;
+        orders[floor].elev = 0;
+        currentStatus = floor;
+        moveElevator(0);
+    }
+    else if ((orders[floor].elev) || (dir == 1 && orders[floor].up) || (dir == -1 && orders[floor].down))
+    {
+        currentStatus = floor;
+        if (orders[floor].elev)
+        {
+            orders[floor].elev=0;
+            elev_set_button_lamp(BUTTON_COMMAND,floor,0);
+        }
+        if (dir == 1 && orders[floor].up)
+        {
+            orders[floor].up = 0;
+            elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
+            
+        }
+        else if (dir == -1 && orders[floor].down)
+        {
+            orders[floor].down = 0;
+            elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
+        }
+        moveElevator(0);
+    }
+}

@@ -33,3 +33,5 @@ void moveElevator(elev_motor_direction_t direction);
 void clearQueue(int* queue, int sizeOfQueue);
 
 void emergencyStop();
+
+void reachedFloor(int floor);
