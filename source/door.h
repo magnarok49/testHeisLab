@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-typedef enum doorStatus{OPEN = 1,CLOSED = 0};
+typedef enum doorStatus {OPEN = 1,CLOSED = 0};
 
 void openDoor();
 void closeDoor();
