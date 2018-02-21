@@ -21,7 +21,6 @@ double get_wall_time(void)
     return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
 
-<<<<<<< HEAD
 
 
 // stops elevaotr if it is at desired floor, -1 stops elevator immidiately
@@ -69,10 +68,8 @@ void moveElevator(tag_elev_motor_direction direction)
     moving = 1;
     currentStatus = -1;
     elev_set_motor_direction(dir);
-=======
 void shiftFromQueue(int* queue, int sizeOfQueue){
     for(int i = 0; i < (N_FLOORS - 1); i++){
         queue[]
     }
->>>>>>> 76684989ddbbb4c6be33703f69ef9566609f2e90
 }
