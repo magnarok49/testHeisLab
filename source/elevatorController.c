@@ -3,6 +3,7 @@
 #include <sys/time.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 
 orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
@@ -32,12 +33,12 @@ void stopElevator(int floor)
 
     if (floor == -1)
     {
-        elev_set_motor_direction(0);
+        moveElevator(0);
         printf("Emergency stop activated");
     }
     else if (elev_get_floor_sensor_signal() == floor)
     {
-        elev_set_motor_direction(0);
+        moveElevator(0);
         elev_set_button_lamp(2,floor,0);
         elev_set_button_lamp(0,floor,0);
         elev_set_button_lamp(1,floor,0);
@@ -51,15 +52,12 @@ void driveToInitialState()
    while (elev_get_floor_sensor_signal() == -1)
    {
        
-       moving = 1;
-       dir = -1;
-       elev_set_motor_direction(dir);
+        moveElevator(-1);
        
    }
-   elev_set_motor_direction(0);
+   moveElevator(0);
    currentStatus = elev_get_floor_sensor_signal();
    lastFloor = elev_get_floor_sensor_signal();
-   moving = 0;
    
 }
 

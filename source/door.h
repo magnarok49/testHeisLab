@@ -10,3 +10,5 @@ bool timerActive = false;
 
 void checkTimer(double *timer);
 
+
+void emergencyStop();

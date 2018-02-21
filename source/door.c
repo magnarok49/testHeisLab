@@ -2,6 +2,7 @@
 #include "elev.h"
 #include "elevatorController.h"
 #include <stdbool.h>
+#include <stdio.h>
 
 timer doorTimer;
 bool timerActive = false;
@@ -28,3 +29,31 @@ void checktimer(double *timer)
 }
 
 
+
+void emergencyStop()
+{
+    stopElevator(-1);
+    elev_set_stop_lamp(1);
+    if (elev_get_floor_sensor_signal != -1)
+    {
+        openDoor();
+       
+    }
+    while (elev_get_stop_signal())
+    {
+        continue;
+    }
+    elev_set_stop_lamp(0);
+    
+    if (elev_get_floor_sensor_signal != -1)
+    {
+        doorTimer = get_wall_time();
+        while((doorTimer != 0) && ((doorTimer - get_wall_time()) < 3))
+        {
+            continue;
+        }
+        closeDoor();
+    }
+
+    
+}
