@@ -85,13 +85,12 @@ void addToQueue(int* queue, int sizeOfQueue, int floorToAdd){
             if(max(queue[i], queue[i-1]) > floorToAdd && min(queue[i], queue[i-1]) < floorToAdd){
                 printf("Decided floor already enroute");
                 return;
-            } else {
-                if((signCurrentDir > 0 && queue[i] < floorToAdd)||
-                (signCurrentDir < 0 && queue[i] > floorToAdd)){
+            } 
+            else if ((signCurrentDir > 0 && queue[i] < floorToAdd)||
+                    (signCurrentDir < 0 && queue[i] > floorToAdd)){
                     queue[i] = floorToAdd;
                     printf("Decided floor is the new extremity for current route");
                     return;
-                }
             }
         }
     }
