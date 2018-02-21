@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <elev.h>
 
 typedef struct order_states {
     bool up;
@@ -7,9 +8,11 @@ typedef struct order_states {
 } orderStruct;
 
 
+
+
 double get_wall_time(void);
 
-typdef enum elev_status {
+typedef enum elev_status {
     BEETWEEN_FLOORS = -1,
     FLOOR_ONE,
     FLOOR_TWO,
@@ -18,3 +21,9 @@ typdef enum elev_status {
 } elev_status_enum;
 
 
+// stops elevaotr if it is at desired floor, -1 stops elevator immidiately
+void stopElevator(int floor);
+
+void driveToInitialState(void);
+
+void moveElevator(tag_elev_motor_direction direction);
