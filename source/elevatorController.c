@@ -68,6 +68,7 @@ void moveElevator(elev_motor_direction_t direction)
     dir = direction;
     moving = 1;
     currentStatus = -1;
+    closeDoor();
     elev_set_motor_direction(dir);
 
 }

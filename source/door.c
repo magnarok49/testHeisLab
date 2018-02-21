@@ -27,3 +27,4 @@ void checktimer(double *timer)
     printf("Timer not reset & door still open");
 }
 
+
