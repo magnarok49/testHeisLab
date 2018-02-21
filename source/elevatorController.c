@@ -28,7 +28,7 @@ void shiftFromQueue(int* queue, int sizeOfQueue){ //removes first element from q
         queue[i] = queue[i+1];
     }
 }
-
+/*
 void insertIntoQueue(int* queue, int sizeOfQueue, int elementToInsert, int index){
     if (index == sizeOfQueue - 1 || queue[sizeOfQueue-1] > -1){
         queue[index] = elementToInsert;
@@ -40,7 +40,7 @@ void insertIntoQueue(int* queue, int sizeOfQueue, int elementToInsert, int index
     }
     queue[index] = elementToInsert;
     return;
-}
+}*/
 
 
 /*
@@ -78,7 +78,7 @@ void addToQueue(int* queue, int sizeOfQueue, int floorToAdd){
     for(int i = 1; i < sizeOfQueue; i++){
         if(queue[i] < 0){ //if no more elements in queue..
             queue[i] = floorToAdd;
-            print("Appended floor to queue");
+            printf("Appended floor to queue");
             return;
         }
         if(queue[i] == floorToAdd){
