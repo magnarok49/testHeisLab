@@ -30,9 +30,10 @@ void checktimer(double *timer)
 
 
 
-void emergencyStop()
+void emergencyStop(int *queue, int sizeOfQueue)
 {
     stopElevator(-1);
+    clearQueue(queue,sizeOfQueue);
     elev_set_stop_lamp(1);
     if (elev_get_floor_sensor_signal() != -1)
     {
