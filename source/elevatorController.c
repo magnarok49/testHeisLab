@@ -3,6 +3,7 @@
 #include <sys/time.h>
 #include <stdio.h>
 #include <string.h>
+#include "utilities.h"
 
 
 orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
