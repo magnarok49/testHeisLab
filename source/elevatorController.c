@@ -16,7 +16,7 @@ int target_floor_queue[N_FLOORS] = {-1,-1,-1,-1}; //investigate reducing size of
 // return seconds
 double get_wall_time(void)
 {
-    struct timeval_time;
+    struct timeval time;
     gettimeofday(&time, NULL);
     return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
