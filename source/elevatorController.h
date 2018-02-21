@@ -17,4 +17,6 @@ typedef enum elev_status {
     FLOOR_FOUR
 } elev_status_enum;
 
-
+void shiftFromQueue(int* queue, int sizeOfQueue);
+void insertIntoQueue(int* queue, int sizeOfQueue, int elementToInsert, int index);
+void addToQueue(int* queue, int sizeOfQueue, int floorToAdd);
