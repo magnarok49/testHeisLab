@@ -69,6 +69,9 @@ void moveElevator(elev_motor_direction_t direction)
     moving = 1;
     currentStatus = -1;
     elev_set_motor_direction(dir);
+
+}
+
 void shiftFromQueue(int* queue, int sizeOfQueue){
     for(int i = 0; i < (N_FLOORS - 1); i++){
         queue[]
