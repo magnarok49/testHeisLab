@@ -29,3 +29,5 @@ void stopElevator(int floor);
 void driveToInitialState(void);
 
 void moveElevator(elev_motor_direction_t direction);
+
+void pollButtons();
