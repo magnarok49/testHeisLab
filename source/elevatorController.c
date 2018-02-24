@@ -74,7 +74,23 @@ void addToQueue(int floorToAdd)
     //order stuff done
 
 
-    int signCurrentDir = target_floor_queue[0] - lastFloor; //using sign to describe dir, + is up 
+    int signCurrentDir = (target_floor_queue[0] - lastFloor)/abs(target_floor_queue[0] - lastFloor);
+
+    if(signCurrentDir == dirRequested || (!dirRequested))
+        {
+            if(max(target_floor_queue[0], lastFloor) > floorToAdd && min		  (target_floor_queue[0], lastFloor) < floorToAdd){
+                printf("Decided floor already enroute");
+                return;
+            } 
+            else if ((signCurrentDir > 0 && target_floor_queue[0] < floorToAdd)||
+                    (signCurrentDir < 0 && target_floor_queue[0] > floorToAdd)){
+                    target_floor_queue[0] = floorToAdd;
+                    printf("Decided floor is the new extremity for current route");
+                    return;
+            }
+        }
+
+	 
     for(int i = 1; i < target_floor_queue_size; i++)
     {
         if(target_floor_queue[i] < 0)//if no more elements in queue..
@@ -91,7 +107,7 @@ void addToQueue(int floorToAdd)
         signCurrentDir = (target_floor_queue[i] - target_floor_queue[i-1])/abs(target_floor_queue[i] - target_floor_queue[i-1]);
         if(signCurrentDir == dirRequested || (!dirRequested))
         {
-            if(max(target_floor_queue[i], target_floor_queue[i-1]) > floorToAdd && min(target_floor_queue[i], target_floor_queue[i-1]) < floorToAdd){
+            if(max(target_floor_queue[i], target_floor_queue[i-1]) > floorToAdd && min		 (target_floor_queue[i], target_floor_queue[i-1]) < floorToAdd){
                 printf("Decided floor already enroute");
                 return;
             } 
@@ -150,7 +166,7 @@ void driveToInitialState()
     currentStatus = elev_get_floor_sensor_signal();
     lastFloor = currentStatus;
     elev_set_floor_indicator(currentStatus);
-   
+    setTimer();
 }
 
 void moveElevator(elev_motor_direction_t direction)
@@ -196,17 +212,24 @@ void emergencyStop()
 
 void reachedFloor(int floor)
 {
-
+    elev_set_floor_indicator(floor);
     lastFloor = floor;
     if (target_floor_queue[0] == floor)
     {
         shiftFromQueue();
 
         //code to test if we need to reset button lights here?
-        orders[floor].up = 0;
-        elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
-        orders[floor].down = 0;
-        elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
+	if(floor < 3)
+	{
+	    orders[floor].up = 0;
+            elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
+	}
+        
+	if(floor > 0)
+	{
+	    orders[floor].down = 0;
+	    elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
+	}
         orders[floor].elev = 0;
         elev_set_button_lamp(BUTTON_COMMAND,floor,0);
         currentStatus = floor;

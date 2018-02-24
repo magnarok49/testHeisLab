@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-timer doorTimer = NULL;
+timer doorTimer = 0;
 
 void openDoor()
 {
@@ -18,14 +18,18 @@ void closeDoor()
 
 void checkTimer()
 {
-    if (doorTimer && (doorTimer - get_wall_time()) > 3)
+    if (doorTimer && (get_wall_time() - doorTimer) > 3)
     {
-        doorTimer = NULL;
+        doorTimer = 0;
         closeDoor();
-        printf("Timer reset & door closed");
+        //printf("Timer reset & door closed");
         return;
     }
-    printf("Timer not reset & door still open");
+    //printf("Timer not reset & door still open");
+    //double var = get_wall_time()-doorTimer;
+    //printf("%lf", var);
+    //printf("\n");
+    //printf("%lf", get_wall_time());
 }
 
 void setTimer()
@@ -37,7 +41,7 @@ void setTimer()
 
 bool timerStatus()
 {
-    return doorTimer != NULL;
+    return doorTimer == 0;
 }
 
 
