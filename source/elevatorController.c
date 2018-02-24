@@ -279,40 +279,29 @@ void goToDestination()
 
 void runElevator()
 {
-    printf("Press STOP button to stop elevator and exit program.\n");
+    printf("Flip Obstruction switch to stop elevator and exit program.\n");
 
 
     driveToInitialState();
 
-    while (1) {
-        // Change direction when we reach top/bottom floor
-        if (elev_get_floor_sensor_signal() == N_FLOORS - 1) {
-            elev_set_motor_direction(DIRN_DOWN);
-        } else if (elev_get_floor_sensor_signal() == 0) {
-            elev_set_motor_direction(DIRN_UP);
-        }
-        //INSERT CODE HERE
+    while (1)
+    {
         pollButtons();
-        if(elev_get_floor_sensor_signal() > -1){
+        if(elev_get_floor_sensor_signal() > -1)
+        {
             reachedFloor(elev_get_floor_sensor_signal());
         }
+        goToDestination();
+        checkTimer();
+
 
         
-
-
-
-
-
-
-
-
         if (elev_get_stop_signal())
         {
             emergencyStop();
         }
 
 
-        //END CODE HERE
         // Stop elevator and exit program if the obstruction button is pressed
         if (elev_get_obstruction_signal()) {
             elev_set_motor_direction(DIRN_STOP);

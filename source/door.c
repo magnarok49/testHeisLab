@@ -16,7 +16,7 @@ void closeDoor()
     elev_set_door_open_lamp(0);
 }
 
-void checktimer()
+void checkTimer()
 {
     if (doorTimer && (doorTimer - get_wall_time()) > 3)
     {
