@@ -27,77 +27,77 @@ double get_wall_time(void)
     return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
 
-void shiftFromQueue(int* queue, int sizeOfQueue){ //removes first element from queue
-    for(int i = 0; i < (sizeOfQueue - 1); i++){
-        queue[i] = queue[i+1];
+void shiftFromQueue()//removes first element from queue
+{
+    for(int i = 0; i < (target_floor_queue_size - 1); i++)
+    {
+        target_floor_queue[i] = target_floor_queue[i+1];
     }
+    target_floor_queue[target_floor_queue_size-1] = -1;
 }
-/*
-void insertIntoQueue(int* queue, int sizeOfQueue, int elementToInsert, int index){
-    if (index == sizeOfQueue - 1 || queue[sizeOfQueue-1] > -1){
-        queue[index] = elementToInsert;
-        printf("Size of queue exceeded, losing last element.\n");
-        return;
-    }
-    for(int i = sizeOfQueue - 1; i > index; i--){
-        queue[i] = queue[i-1];
-    }
-    queue[index] = elementToInsert;
-    return;
-}*/
-
 
 /*
 Assumes elevator not on floorToAdd..
 Assumes orders has already been updated with requested floor.
 */
-void addToQueue(int* queue, int sizeOfQueue, int floorToAdd){
-    if(floorToAdd > (N_FLOORS - 1) || floorToAdd < 0){//floorToAdd has invalid value
+void addToQueue(int floorToAdd)
+{
+    if(floorToAdd > (N_FLOORS - 1) || floorToAdd < 0 || currentStatus == floorToAdd) //floorToAdd has invalid value
+    {
         printf("addToQueue received invalid floor...\n");
         return;
     }
-    if(queue[0] < 0){ //queue is empty..
-            queue[0] = floorToAdd;
+    if(target_floor_queue[0] < 0) //queue is empty..
+    { 
+            target_floor_queue[0] = floorToAdd;
             return;
     }
-    if(queue[0] == floorToAdd){
+    if(target_floor_queue[0] == floorToAdd)
+    {
         return;
     }
 
     //Figuring out which direction the new order has.
     int dirRequested = -2; //0 for either, -1 for down etc..
-    if(orders[floorToAdd].elev){
+    if(orders[floorToAdd].elev)
+    {
         dirRequested = 0;
-    } else if (orders[floorToAdd].up || orders[floorToAdd].down){
+    } else if (orders[floorToAdd].up || orders[floorToAdd].down)
+    {
         dirRequested = orders[floorToAdd].up - orders[floorToAdd].down;
     }
-    if(dirRequested < -1){//floorToAdd has invalid value
+    if(dirRequested < -1)//floorToAdd has invalid value
+    {
         printf("addToQueue has been called without corresponding data in orders.\n");
         return;
     }
     //order stuff done
 
 
-    int signCurrentDir = queue[0] - lastFloor; //using sign to describe dir, + is up 
-    for(int i = 1; i < sizeOfQueue; i++){
-        if(queue[i] < 0){ //if no more elements in queue..
-            queue[i] = floorToAdd;
+    int signCurrentDir = target_floor_queue[0] - lastFloor; //using sign to describe dir, + is up 
+    for(int i = 1; i < target_floor_queue_size; i++)
+    {
+        if(target_floor_queue[i] < 0)//if no more elements in queue..
+        {
+            target_floor_queue[i] = floorToAdd;
             printf("Appended floor to queue");
             return;
         }
-        if(queue[i] == floorToAdd){
+        if(target_floor_queue[i] == floorToAdd)
+        {
             printf("Floor already in queue at appropriate spot..");
             return;
         }
-        signCurrentDir = (queue[i] - queue[i-1])/abs(queue[i] - queue[i-1]);
-        if(signCurrentDir == dirRequested || (!dirRequested)){
-            if(max(queue[i], queue[i-1]) > floorToAdd && min(queue[i], queue[i-1]) < floorToAdd){
+        signCurrentDir = (target_floor_queue[i] - target_floor_queue[i-1])/abs(target_floor_queue[i] - target_floor_queue[i-1]);
+        if(signCurrentDir == dirRequested || (!dirRequested))
+        {
+            if(max(target_floor_queue[i], target_floor_queue[i-1]) > floorToAdd && min(target_floor_queue[i], target_floor_queue[i-1]) < floorToAdd){
                 printf("Decided floor already enroute");
                 return;
             } 
-            else if ((signCurrentDir > 0 && queue[i] < floorToAdd)||
-                    (signCurrentDir < 0 && queue[i] > floorToAdd)){
-                    queue[i] = floorToAdd;
+            else if ((signCurrentDir > 0 && target_floor_queue[i] < floorToAdd)||
+                    (signCurrentDir < 0 && target_floor_queue[i] > floorToAdd)){
+                    target_floor_queue[i] = floorToAdd;
                     printf("Decided floor is the new extremity for current route");
                     return;
             }
@@ -105,10 +105,10 @@ void addToQueue(int* queue, int sizeOfQueue, int floorToAdd){
     }
 }
 
-void clearQueue(int* queue, int sizeOfQueue){
+void clearQueue(){
     int i = 0;
-    while(queue[i] > -1 && i < sizeOfQueue){
-        queue[i] = -1;
+    while(target_floor_queue[i] > -1 && i < target_floor_queue_size){
+        target_floor_queue[i] = -1;
         ++i;
     }
 }
@@ -162,10 +162,10 @@ void moveElevator(elev_motor_direction_t direction)
     elev_set_motor_direction(dir);
 }
 
-void emergencyStop(int *queue, int sizeOfQueue)
+void emergencyStop()
 {
     stopElevator(-1);
-    clearQueue(queue,sizeOfQueue);
+    clearQueue();
     elev_set_stop_lamp(1);
     if (elev_get_floor_sensor_signal() != -1)
     {
@@ -200,7 +200,9 @@ void reachedFloor(int floor)
     lastFloor = floor;
     if (target_floor_queue[0] == floor)
     {
-        shiftFromQueue(target_floor_queue,target_floor_queue_size);
+        shiftFromQueue();
+
+        //code to test if we need to reset button lights here?
         orders[floor].up = 0;
         elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
         orders[floor].down = 0;
@@ -208,6 +210,8 @@ void reachedFloor(int floor)
         orders[floor].elev = 0;
         elev_set_button_lamp(BUTTON_COMMAND,floor,0);
         currentStatus = floor;
+
+
         moveElevator(0);
     }
     else if ((orders[floor].elev) || (dir == 1 && orders[floor].up) || (dir == -1 && orders[floor].down))
@@ -222,7 +226,6 @@ void reachedFloor(int floor)
         {
             orders[floor].up = 0;
             elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
-            
         }
         else if (dir == -1 && orders[floor].down)
         {
@@ -235,17 +238,20 @@ void reachedFloor(int floor)
 
 void pollButtons(){
     for(int i = 0; i < N_FLOORS; i++){
-        if(i < (N_FLOORS - 1) &&(!orders[i].up) && elev_get_button_signal(BUTTON_CALL_UP,i)){
+        if(i < (N_FLOORS - 1) && (!orders[i].up) && elev_get_button_signal(BUTTON_CALL_UP,i)){
             elev_set_button_lamp(BUTTON_CALL_UP, i, 1);
             orders[i].up = 1;
+            addToQueue(i);
         }
-        if(i > 0 &&(!orders[i].down) && elev_get_button_signal(BUTTON_CALL_DOWN,i)){
+        if(i > 0 && (!orders[i].down) && elev_get_button_signal(BUTTON_CALL_DOWN,i)){
             elev_set_button_lamp(BUTTON_CALL_DOWN, i, 1);
             orders[i].down = 1;
+            addToQueue(i);
         }
         if((!orders[i].elev) && elev_get_button_signal(BUTTON_COMMAND,i)){
             elev_set_button_lamp(BUTTON_COMMAND, i, 1);
             orders[i].elev = 1;
+            addToQueue(i);
         }
     }
 }
