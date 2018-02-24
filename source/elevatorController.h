@@ -39,3 +39,5 @@ void reachedFloor(int floor);
 void pollButtons();
 
 void runElevator();
+
+void goToDestination();

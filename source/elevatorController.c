@@ -209,6 +209,7 @@ void reachedFloor(int floor)
         elev_set_button_lamp(BUTTON_COMMAND,floor,0);
         currentStatus = floor;
         moveElevator(0);
+        setTimer();
     }
     else if ((orders[floor].elev) || (dir == 1 && orders[floor].up) || (dir == -1 && orders[floor].down))
     {
@@ -230,6 +231,7 @@ void reachedFloor(int floor)
             elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
         }
         moveElevator(0);
+        setTimer();
     }
 }
 
@@ -251,6 +253,24 @@ void pollButtons(){
 }
 
 
+void goToDestination()
+{
+    if (target_floor_queue[0] > -1 && timerStatus())
+    {
+        if (target_floor_queue[0] > lastFloor)
+        {
+            moveElevator(1);
+        }
+        else if (target_floor_queue[0] < lastFloor)
+        {
+            moveElevator(-1);
+        }
+    }
+    
+}
+
+
+
 void runElevator()
 {
     printf("Press STOP button to stop elevator and exit program.\n");
@@ -267,7 +287,7 @@ void runElevator()
         }
         //INSERT CODE HERE
         pollButtons();
-        if(currentStatus != lastFloor && elev_get_floor_sensor_signal() > -1){
+        if(elev_get_floor_sensor_signal() > -1){
             reachedFloor(elev_get_floor_sensor_signal());
         }
 
@@ -276,9 +296,19 @@ void runElevator()
 
 
 
+
+
+
+
+        if (elev_get_stop_signal())
+        {
+            emergencyStop();
+        }
+
+
         //END CODE HERE
-        // Stop elevator and exit program if the stop button is pressed
-        if (elev_get_stop_signal()) {
+        // Stop elevator and exit program if the obstruction button is pressed
+        if (elev_get_obstruction_signal()) {
             elev_set_motor_direction(DIRN_STOP);
             break;
         }

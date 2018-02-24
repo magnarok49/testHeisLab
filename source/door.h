@@ -7,6 +7,9 @@ void closeDoor();
 
 typedef double timer;
 
-void checkTimer(double *timer);
+void checkTimer();
 
+void setTimer();
+
+bool timerStatus();
 
