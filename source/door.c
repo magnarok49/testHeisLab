@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-
+timer doorTimer = NULL;
 
 void openDoor()
 {
@@ -16,15 +16,28 @@ void closeDoor()
     elev_set_door_open_lamp(0);
 }
 
-void checktimer(double *timer)
+void checktimer()
 {
-    if (*timer && (*timer - get_wall_time()) > 3)
+    if (doorTimer && (doorTimer - get_wall_time()) > 3)
     {
-        *timer = 0;
+        doorTimer = NULL;
         closeDoor();
         printf("Timer reset & door closed");
+        return;
     }
     printf("Timer not reset & door still open");
+}
+
+void setTimer()
+{
+    openDoor();
+    doorTimer = get_wall_time();
+    printf("Timer set & door open");
+}
+
+bool timerStatus()
+{
+    return doorTimer != NULL;
 }
 
 
