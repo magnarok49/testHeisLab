@@ -121,11 +121,25 @@ void addToQueue(int floorToAdd)
     }
 }
 
-void clearQueue(){
+void clearQueueAndOrders(){
     int i = 0;
     while(target_floor_queue[i] > -1 && i < target_floor_queue_size){
         target_floor_queue[i] = -1;
         ++i;
+    }
+    for(int j = 0; j < N_FLOORS; j++){
+        if(orders[j].elev){
+            orders[j].elev = 0;
+            elev_set_button_lamp(BUTTON_COMMAND, j,0);
+        }
+        if(j < (N_FLOORS - 1) && orders[j].up){
+            orders[j].up = 0;
+            elev_set_button_lamp(BUTTON_CALL_UP, j,0);
+        }
+        if(j > 0 && orders[j].down){
+            orders[j].down = 0;
+            elev_set_button_lamp(BUTTON_CALL_DOWN, j,0);
+        }
     }
 }
 
@@ -181,7 +195,7 @@ void moveElevator(elev_motor_direction_t direction)
 void emergencyStop()
 {
     stopElevator(-1);
-    clearQueue();
+    clearQueueAndOrders();
     elev_set_stop_lamp(1);
     if (elev_get_floor_sensor_signal() != -1)
     {
