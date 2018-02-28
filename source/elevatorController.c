@@ -14,8 +14,8 @@ int lastFloor = -1; // 0 through N_FLOORS - 1, should match elevator status ligh
 elev_status_enum currentStatus = -1;
 bool moving = 0;
 elev_motor_direction_t dir = 0; // 1 for up, 0 for stationary and -1 for down
-int target_floor_queue[N_FLOORS + 2] = {-1,-1,-1,-1, -1, -1}; //investigate reducing size of queue
-int target_floor_queue_size = N_FLOORS +2;
+int target_floor_queue[N_FLOORS] = {-1,-1,-1,-1}; //investigate reducing size of queue
+int target_floor_queue_size = N_FLOORS; //arbitrary size, could be halved..
 
 
 
