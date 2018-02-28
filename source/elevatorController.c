@@ -222,12 +222,15 @@ void emergencyStop()
 
     if (elev_get_floor_sensor_signal() != -1)
     {
+        /* old code
         timer doorTimer = get_wall_time();
         while((get_wall_time() - doorTimer) < 3)
         {
             continue;
         }
-        closeDoor();
+        closeDoor();*/ 
+
+        setTimer();
     }
 }
 
@@ -357,19 +360,9 @@ void runElevator()
         }
         goToDestination();
         checkTimer();
-
-
-        
         if (elev_get_stop_signal())
         {
             emergencyStop();
-        }
-
-
-        // Stop elevator and exit program if the obstruction button is pressed
-        if (elev_get_obstruction_signal()) {
-            elev_set_motor_direction(DIRN_STOP);
-            break;
         }
     }
 }
