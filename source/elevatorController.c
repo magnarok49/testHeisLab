@@ -335,14 +335,13 @@ void runElevator()
 
 
     driveToInitialState();
-    int floorSensorData = -1;
     while (1)
     {
         pollButtons();
         currentStatus = elev_get_floor_sensor_signal();
         if(currentStatus > -1)
         {
-            reachedFloor(floorSensorData);
+            reachedFloor(currentStatus);
         }
         goToDestination();
         checkTimer();
