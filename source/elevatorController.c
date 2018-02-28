@@ -211,14 +211,12 @@ void emergencyStop()
     if (elev_get_floor_sensor_signal() != -1)
     {
         timer doorTimer = get_wall_time();
-        while((doorTimer != 0) && ((doorTimer - get_wall_time()) < 3))
+        while((get_wall_time() - doorTimer) < 3)
         {
             continue;
         }
         closeDoor();
     }
-
-    
 }
 
 
