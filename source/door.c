@@ -36,7 +36,7 @@ void setTimer()
 {
     openDoor();
     doorTimer = get_wall_time();
-    printf("Timer set & door open");
+    //printf("Timer set & door open");
 }
 
 bool timerStatus()
