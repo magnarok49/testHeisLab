@@ -60,7 +60,7 @@ void addToQueue(int floorToAdd)
     //Figuring out which direction the new order has.
     int dirRequested = -2; //0 for either, -1 for down etc..
     bool bothDirs = 0;
-    if(orders[floorToAdd].elev || floor == 3 || floor == 0)
+    if(orders[floorToAdd].elev || floorToAdd == 3 || floorToAdd == 0)
     {
         dirRequested = 0;
     } 
