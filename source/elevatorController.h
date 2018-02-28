@@ -23,9 +23,6 @@ typedef enum elev_status {
 void shiftFromQueue();
 void addToQueue(int floorToAdd);
 
-// stops elevaotr if it is at desired floor, -1 stops elevator immidiately
-void stopElevator(int floor);
-
 void driveToInitialState(void);
 
 void moveElevator(elev_motor_direction_t direction);

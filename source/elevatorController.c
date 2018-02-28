@@ -16,9 +16,7 @@ bool moving = 0;
 elev_motor_direction_t dir = 0; // 1 for up, 0 for stationary and -1 for down
 int target_floor_queue[N_FLOORS] = {-1,-1,-1,-1}; //investigate reducing size of queue
 int target_floor_queue_size = N_FLOORS; //arbitrary size, could be halved..
-
-
-
+bool unhandledEmergency = false;
 // return seconds
 double get_wall_time(void)
 {
@@ -175,29 +173,7 @@ void clearQueueAndOrders(){
     }
 }
 
-// stops elevaotr if it is at desired floor, -1 stops elevator immidiately
-void stopElevator(int floor)
-{
-    assert(floor >= -1);
-    assert(floor < N_FLOORS);
 
-    if (floor == -1)
-    {
-        moveElevator(0);
-        printf("Emergency stop activated");
-    }
-    else if (elev_get_floor_sensor_signal() == floor)
-    { //sketchy shit below
-        moveElevator(0);
-        elev_set_button_lamp(2,floor,0);
-        elev_set_button_lamp(0,floor,0);
-        elev_set_button_lamp(1,floor,0);
-        printf("Arrived at floor ");
-        char c = floor+48;
-        printf("%c",c);
-        printf(" successfully");
-    }
-}
 
 
 void driveToInitialState()
@@ -226,17 +202,17 @@ void moveElevator(elev_motor_direction_t direction)
 
 void emergencyStop()
 {
-    stopElevator(-1);
+    elev_set_motor_direction(DIRN_STOP);
     clearQueueAndOrders();
     elev_set_stop_lamp(1);
     if (elev_get_floor_sensor_signal() != -1)
     {
         openDoor();
-       
+        dir = 0;
     }
     else 
     {
-        lastFloor = -1;
+        unhandledEmergency = 1;
     }
     while (elev_get_stop_signal())
     {
@@ -335,16 +311,31 @@ void goToDestination()
 {
     if (target_floor_queue[0] > -1 && timerStatus())
     {
-        if (target_floor_queue[0] > lastFloor)
+        if(unhandledEmergency)
         {
-            moveElevator(1);
+            if ((target_floor_queue[0] > lastFloor && dir > 0 )||(target_floor_queue[0] == lastFloor && dir < 0 ))
+            {
+                
+                moveElevator(1);
+            }
+            else
+            {
+                moveElevator(-1);
+            } 
+            unhandledEmergency = 0;
         }
-        else if (target_floor_queue[0] < lastFloor)
+        else
         {
-            moveElevator(-1);
+           if (target_floor_queue[0] > lastFloor)
+            {
+                moveElevator(1);
+            }
+            else if (target_floor_queue[0] < lastFloor)
+            {
+                moveElevator(-1);
+            } 
         }
     }
-    
 }
 
 
