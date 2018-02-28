@@ -252,7 +252,7 @@ void reachedFloor(int floor)
         moveElevator(0);
         setTimer();
     }
-    else if ((orders[floor].elev) || (dir == 1 && orders[floor].up) || (dir == -1 && orders[floor].down))
+    else if ((orders[floor].elev) || ((dir > -1) && orders[floor].up) || (dir < 1 && orders[floor].down))
     {
         //currentStatus = floor;
         if (orders[floor].elev)
@@ -260,12 +260,12 @@ void reachedFloor(int floor)
             orders[floor].elev=0;
             elev_set_button_lamp(BUTTON_COMMAND,floor,0);
         }
-        if (orders[floor].up && (dir == 1 || dir == 0))
+        if (orders[floor].up && dir > -1)
         {
             orders[floor].up = 0;
             elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
         }
-        else if (orders[floor].down || (dir == -1 || dir == 0))
+        else if (orders[floor].down || dir < 1)
         {
             orders[floor].down = 0;
             elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
