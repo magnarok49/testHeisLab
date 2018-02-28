@@ -59,12 +59,16 @@ void addToQueue(int floorToAdd)
 
     //Figuring out which direction the new order has.
     int dirRequested = -2; //0 for either, -1 for down etc..
+    bool bothDirs = 0;
     if(orders[floorToAdd].elev)
     {
         dirRequested = 0;
-    } else if (orders[floorToAdd].up || orders[floorToAdd].down)
+    } 
+    else if (orders[floorToAdd].up || orders[floorToAdd].down)
     {
         dirRequested = orders[floorToAdd].up - orders[floorToAdd].down;
+        bothDirs = (orders[floorToAdd].up && orders[floorToAdd].down);
+        //DO SOMETHING HERE TO FIX GHETTOBUG
     }
     if(dirRequested < -1)//floorToAdd has invalid value
     {
@@ -78,11 +82,25 @@ void addToQueue(int floorToAdd)
 
     if(signCurrentDir == dirRequested || (!dirRequested))
         {
-            if(max(target_floor_queue[0], lastFloor) > floorToAdd && min		  (target_floor_queue[0], lastFloor) < floorToAdd){
+            if(max(target_floor_queue[0], lastFloor) > floorToAdd && min(target_floor_queue[0], lastFloor) < floorToAdd) {
                 printf("Decided floor already enroute");
+                
+                //new code below
+                if(bothDirs)
+                {
+                    bothDirs = 0;
+                    dirRequested = -1* signCurrentDir;
+                }
+                else{
+                    return;
+                }
+                //new code above
+
+                /*oldCOde
                 return;
+                */
             } 
-            else if ((signCurrentDir > 0 && target_floor_queue[0] < floorToAdd)||
+            else if ((signCurrentDir > 0 && target_floor_queue[0] < floorToAdd) ||
                     (signCurrentDir < 0 && target_floor_queue[0] > floorToAdd)){
                     target_floor_queue[0] = floorToAdd;
                     printf("Decided floor is the new extremity for current route");
@@ -107,9 +125,22 @@ void addToQueue(int floorToAdd)
         signCurrentDir = (target_floor_queue[i] - target_floor_queue[i-1])/abs(target_floor_queue[i] - target_floor_queue[i-1]);
         if(signCurrentDir == dirRequested || (!dirRequested))
         {
-            if(max(target_floor_queue[i], target_floor_queue[i-1]) > floorToAdd && min		 (target_floor_queue[i], target_floor_queue[i-1]) < floorToAdd){
+            if(max(target_floor_queue[i], target_floor_queue[i-1]) > floorToAdd && min(target_floor_queue[i], target_floor_queue[i-1]) < floorToAdd){
                 printf("Decided floor already enroute");
+                //new code below
+                if(bothDirs)
+                {
+                    bothDirs = 0;
+                    dirRequested = -1* signCurrentDir;
+                }
+                else{
+                    return;
+                }
+                //new code above
+
+                /*oldCOde
                 return;
+                */
             } 
             else if ((signCurrentDir > 0 && target_floor_queue[i] < floorToAdd)||
                     (signCurrentDir < 0 && target_floor_queue[i] > floorToAdd)){
