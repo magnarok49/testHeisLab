@@ -66,27 +66,29 @@ void addToQueue(int floorToAdd)
     {
         dirRequested = orders[floorToAdd].up - orders[floorToAdd].down;
         bothDirs = (orders[floorToAdd].up && orders[floorToAdd].down);
-        //DO SOMETHING HERE TO FIX GHETTOBUG
     }
-    if(dirRequested < -1)//floorToAdd has invalid value
+    if(dirRequested < -1) //floorToAdd has invalid value
     {
         printf("addToQueue has been called without corresponding data in orders.\n");
         return;
     }
     //order stuff done
 
-    assert(target_floor_queue[0] != lastFloor);
-    int signCurrentDir = (target_floor_queue[0] - lastFloor)/abs(target_floor_queue[0] - lastFloor);
 
-    if (signCurrentDir == dirRequested || (!dirRequested))
+
+    assert(target_floor_queue[0] != lastFloor); //MAJOR FUCKUPS IF EMERGENCY LEADS TO THIS....
+    elev_motor_direction_t signCurrentDir = getDestinationDir(); //GetDestinationDir should handle setting a different direction if unhandledemergency is present
+
+    if (signCurrentDir == dirRequested || (!dirRequested)) // tests if the requested direction is the same as the current direction of elevator.
         {
-            if (max(target_floor_queue[0], lastFloor) > floorToAdd && 
-                min(target_floor_queue[0], lastFloor) < floorToAdd) 
+            if ((max(target_floor_queue[0], lastFloor) > floorToAdd && 
+                min(target_floor_queue[0], lastFloor) < floorToAdd ) || //before ||: tests if the requested floor is within the route
+                (currentStatus > -1 && floorToAdd == currentStatus)) //tests if the elevator is already on the requested floor
             {
-                if (bothDirs)
+                if (bothDirs) //if both directions are pressed, this snippet makes it forget about the direction that is already enroute
                 {
                     bothDirs = 0;
-                    dirRequested = -1* signCurrentDir;
+                    dirRequested = -1*signCurrentDir;
                 }
                 else
                 {
@@ -131,8 +133,8 @@ void addToQueue(int floorToAdd)
                     return;
                 }
             } 
-            else if ((signCurrentDir > 0 && target_floor_queue[i] <= floorToAdd) ||
-                    (signCurrentDir < 0 && target_floor_queue[i] >= floorToAdd))
+            else if ((signCurrentDir > 0 && target_floor_queue[i] <= floorToAdd) || //decided if the new floor is "more" extreme than the existing destination for that direction
+                    (signCurrentDir < 0 && target_floor_queue[i] >= floorToAdd)) //if so, overwrite the existing destination
             {
                     target_floor_queue[i] = floorToAdd;
                     printf("Decided floor is the new extremity for current route");
@@ -303,7 +305,8 @@ void goToDestination()
     {
         if(unhandledEmergency)
         {
-            if ((target_floor_queue[0] > lastFloor && dir > 0 )||(target_floor_queue[0] == lastFloor && dir < 0 ))
+            if ((target_floor_queue[0] > lastFloor && dir > 0 ) ||
+                (target_floor_queue[0] == lastFloor && dir < 0 ))
             {
                 
                 moveElevator(1);
@@ -316,14 +319,7 @@ void goToDestination()
         }
         else
         {
-           if (target_floor_queue[0] > lastFloor)
-            {
-                moveElevator(1);
-            }
-            else if (target_floor_queue[0] < lastFloor)
-            {
-                moveElevator(-1);
-            } 
+           moveElevator(getDestinationDir());
         }
     }
 }
@@ -340,9 +336,21 @@ elev_motor_direction_t getDestinationDir(){
             return DIRN_DOWN;
         }
     }
-    else
+    else if(lastFloor > -1 && target_floor_queue[0] > -1)
     {
-        return DIRN_STOP;
+        if (target_floor_queue[0] > lastFloor)
+        {
+            return DIRN_UP;
+        } 
+        else if (target_floor_queue[0] < lastFloor) 
+        {
+            return DIRN_DOWN;
+        }
+    } 
+    else 
+    {
+        printf("unable to dicern destinationdir");
+        return 0;
     } 
 }
 
