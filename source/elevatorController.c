@@ -337,8 +337,9 @@ void runElevator()
     driveToInitialState();
     while (1)
     {
-        pollButtons();
         currentStatus = elev_get_floor_sensor_signal();
+        pollButtons();
+        //currentStatus = elev_get_floor_sensor_signal();
         if(currentStatus > -1)
         {
             reachedFloor(currentStatus);
