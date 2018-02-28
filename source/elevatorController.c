@@ -260,12 +260,12 @@ void reachedFloor(int floor)
             orders[floor].elev=0;
             elev_set_button_lamp(BUTTON_COMMAND,floor,0);
         }
-        if (dir == 1 && orders[floor].up)
+        if (orders[floor].up && (dir == 1 || dir == 0))
         {
             orders[floor].up = 0;
             elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
         }
-        else if (dir == -1 && orders[floor].down)
+        else if (orders[floor].down || (dir == -1 || dir == 0))
         {
             orders[floor].down = 0;
             elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
@@ -276,18 +276,22 @@ void reachedFloor(int floor)
 }
 
 void pollButtons(){
-    for(int i = 0; i < N_FLOORS; i++){
-        if(i < (N_FLOORS - 1) && (!orders[i].up) && elev_get_button_signal(BUTTON_CALL_UP,i)){
+    for (int i = 0; i < N_FLOORS; i++)
+    {
+        if (i < (N_FLOORS - 1) && (!orders[i].up) && elev_get_button_signal(BUTTON_CALL_UP,i))
+        {
             elev_set_button_lamp(BUTTON_CALL_UP, i, 1);
             orders[i].up = 1;
             addToQueue(i);
         }
-        if(i > 0 && (!orders[i].down) && elev_get_button_signal(BUTTON_CALL_DOWN,i)){
+        if (i > 0 && (!orders[i].down) && elev_get_button_signal(BUTTON_CALL_DOWN,i))
+        {
             elev_set_button_lamp(BUTTON_CALL_DOWN, i, 1);
             orders[i].down = 1;
             addToQueue(i);
         }
-        if((!orders[i].elev) && elev_get_button_signal(BUTTON_COMMAND,i)){
+        if ((!orders[i].elev) && elev_get_button_signal(BUTTON_COMMAND,i))
+        {
             elev_set_button_lamp(BUTTON_COMMAND, i, 1);
             orders[i].elev = 1;
             addToQueue(i);
