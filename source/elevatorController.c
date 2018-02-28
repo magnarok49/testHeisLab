@@ -100,8 +100,8 @@ void addToQueue(int floorToAdd)
                 return;
                 */
             } 
-            else if ((signCurrentDir > 0 && target_floor_queue[0] < floorToAdd) ||
-                    (signCurrentDir < 0 && target_floor_queue[0] > floorToAdd)){
+            else if ((signCurrentDir > 0 && target_floor_queue[0] <= floorToAdd) ||
+                    (signCurrentDir < 0 && target_floor_queue[0] >= floorToAdd)){
                     target_floor_queue[0] = floorToAdd;
                     printf("Decided floor is the new extremity for current route");
                     return;
@@ -143,8 +143,8 @@ void addToQueue(int floorToAdd)
                 return;
                 */
             } 
-            else if ((signCurrentDir > 0 && target_floor_queue[i] < floorToAdd)||
-                    (signCurrentDir < 0 && target_floor_queue[i] > floorToAdd)){
+            else if ((signCurrentDir > 0 && target_floor_queue[i] <= floorToAdd) ||
+                    (signCurrentDir < 0 && target_floor_queue[i] >= floorToAdd)){
                     target_floor_queue[i] = floorToAdd;
                     printf("Decided floor is the new extremity for current route");
                     return;
