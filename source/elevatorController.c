@@ -155,7 +155,7 @@ void stopElevator(int floor)
         printf("Emergency stop activated");
     }
     else if (elev_get_floor_sensor_signal() == floor)
-    {
+    { //sketchy shit below
         moveElevator(0);
         elev_set_button_lamp(2,floor,0);
         elev_set_button_lamp(0,floor,0);
@@ -224,6 +224,7 @@ void emergencyStop()
 
 void reachedFloor(int floor)
 {
+    assert(floor >= 0);
     elev_set_floor_indicator(floor);
     lastFloor = floor;
     if (target_floor_queue[0] == floor)
@@ -318,13 +319,14 @@ void runElevator()
 
 
     driveToInitialState();
-
+    int floorSensorData = -1;
     while (1)
     {
         pollButtons();
-        if(elev_get_floor_sensor_signal() > -1)
+        floorSensorData = elev_get_floor_sensor_signal();
+        if(floorSensorData > -1)
         {
-            reachedFloor(elev_get_floor_sensor_signal());
+            reachedFloor(floorSensorData);
         }
         goToDestination();
         checkTimer();
