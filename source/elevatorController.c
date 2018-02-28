@@ -250,19 +250,19 @@ void reachedFloor(int floor)
         moveElevator(0);
         setTimer();
     }
-    else if ((orders[floor].elev) || ((dir > -1) && orders[floor].up) || (dir < 1 && orders[floor].down))
+    else if ((orders[floor].elev) || (getDestinationDir() == DIRN_UP && orders[floor].up) || (getDestinationDir() == DIRN_DOWN && orders[floor].down))
     {
         if (orders[floor].elev)
         {
             orders[floor].elev=0;
             elev_set_button_lamp(BUTTON_COMMAND,floor,0);
         }
-        if (orders[floor].up && dir > -1)
+        if (orders[floor].up && getDestinationDir() == DIRN_UP) //NOT GOOD ENOUGH, NEEDS TO CHECK FOR TARGET DIR, AND NOT JUST CURRENT DIR
         {
             orders[floor].up = 0;
             elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
         }
-        else if (orders[floor].down && dir < 1)
+        else if (orders[floor].down && getDestinationDir() == DIRN_DOWN)
         {
             orders[floor].down = 0;
             elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
@@ -328,13 +328,26 @@ void goToDestination()
     }
 }
 
-
+elev_motor_direction_t getDestinationDir(){
+    if (currentStatus > -1 && target_floor_queue[0] > -1)
+    {
+        if (target_floor_queue[0] > currentStatus)
+        {
+            return DIRN_UP;
+        } 
+        else if (target_floor_queue[0] < currentStatus) 
+        {
+            return DIRN_DOWN;
+        }
+    }
+    else
+    {
+        return DIRN_STOP;
+    } 
+}
 
 void runElevator()
 {
-    printf("Flip Obstruction switch to stop elevator and exit program.\n");
-
-
     driveToInitialState();
     while (1)
     {
