@@ -12,7 +12,6 @@
 orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
 int lastFloor = -1; // 0 through N_FLOORS - 1, should match elevator status light on panel..
 elev_status_enum currentStatus = -1;
-bool moving = 0;
 elev_motor_direction_t dir = 0; // 1 for up, 0 for stationary and -1 for down
 int target_floor_queue[N_FLOORS] = {-1,-1,-1,-1}; //investigate reducing size of queue
 int target_floor_queue_size = N_FLOORS; //arbitrary size, could be halved..
@@ -189,8 +188,7 @@ void driveToInitialState()
 void moveElevator(elev_motor_direction_t direction)
 {
     dir = direction;
-    moving = 1;
-    currentStatus = -1;
+    //currentStatus = -1;
     closeDoor();
     elev_set_motor_direction(dir);
 }
@@ -341,8 +339,8 @@ void runElevator()
     while (1)
     {
         pollButtons();
-        floorSensorData = elev_get_floor_sensor_signal();
-        if(floorSensorData > -1)
+        currentStatus = elev_get_floor_sensor_signal();
+        if(currentStatus > -1)
         {
             reachedFloor(floorSensorData);
         }
