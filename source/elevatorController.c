@@ -229,25 +229,26 @@ void reachedFloor(int floor)
     assert(floor >= 0);
     elev_set_floor_indicator(floor);
     lastFloor = floor;
+    currentStatus = floor;
     if (target_floor_queue[0] == floor)
     {
         shiftFromQueue();
 
         //code to test if we need to reset button lights here?
-	if(floor < 3)
-	{
-	    orders[floor].up = 0;
+        if(floor < 3)
+        {
+            orders[floor].up = 0;
             elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
-	}
-        
-	if(floor > 0)
-	{
-	    orders[floor].down = 0;
-	    elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
-	}
+        }
+            
+        if(floor > 0)
+        {
+            orders[floor].down = 0;
+            elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
+        }
         orders[floor].elev = 0;
         elev_set_button_lamp(BUTTON_COMMAND,floor,0);
-        currentStatus = floor;
+        //currentStatus = floor;
 
 
         moveElevator(0);
@@ -255,7 +256,7 @@ void reachedFloor(int floor)
     }
     else if ((orders[floor].elev) || (dir == 1 && orders[floor].up) || (dir == -1 && orders[floor].down))
     {
-        currentStatus = floor;
+        //currentStatus = floor;
         if (orders[floor].elev)
         {
             orders[floor].elev=0;
