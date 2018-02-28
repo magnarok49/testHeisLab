@@ -34,7 +34,7 @@ void emergencyStop();
 void reachedFloor(int floor);
 
 void pollButtons();
-
+elev_motor_direction_t getDestinationDir();
 void runElevator();
 
 void goToDestination();
