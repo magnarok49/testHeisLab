@@ -77,7 +77,7 @@ void addToQueue(int floorToAdd)
     }
     //order stuff done
 
-
+    assert(target_floor_queue[0] != lastFloor);
     int signCurrentDir = (target_floor_queue[0] - lastFloor)/abs(target_floor_queue[0] - lastFloor);
 
     if(signCurrentDir == dirRequested || (!dirRequested))
