@@ -122,6 +122,7 @@ void addToQueue(int floorToAdd)
             printf("Floor already in queue at appropriate spot..");
             return;
         }
+        assert(target_floor_queue[i] != target_floor_queue[i-1]);
         signCurrentDir = (target_floor_queue[i] - target_floor_queue[i-1])/abs(target_floor_queue[i] - target_floor_queue[i-1]);
         if(signCurrentDir == dirRequested || (!dirRequested))
         {
