@@ -40,7 +40,7 @@ Assumes orders has already been updated with requested floor.
 */
 void addToQueue(int floorToAdd)
 {
-    if (floorToAdd > (N_FLOORS - 1) || floorToAdd < 0 || currentStatus == floorToAdd) //floorToAdd has invalid value
+    if (floorToAdd > (N_FLOORS - 1) || floorToAdd < 0) //floorToAdd has invalid value
     {
         printf("addToQueue received invalid floor...\n");
         return;
