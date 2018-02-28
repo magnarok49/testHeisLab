@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include "door.h"
 
-
+//private variables for elevatorController
 orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
 int lastFloor = -1; // 0 through N_FLOORS - 1, should match elevator status light on panel..
 elev_status_enum currentStatus = -1;
@@ -17,6 +17,8 @@ elev_motor_direction_t dir = 0; // 1 for up, 0 for stationary and -1 for down
 int target_floor_queue[N_FLOORS] = {-1,-1,-1,-1}; //investigate reducing size of queue
 int target_floor_queue_size = N_FLOORS; //arbitrary size, could be halved..
 bool unhandledEmergency = false;
+
+
 // return seconds
 double get_wall_time(void)
 {
@@ -27,7 +29,7 @@ double get_wall_time(void)
 
 void shiftFromQueue()//removes first element from queue
 {
-    for(int i = 0; i < (target_floor_queue_size - 1); i++)
+    for (int i = 0; i < (target_floor_queue_size - 1); i++)
     {
         target_floor_queue[i] = target_floor_queue[i+1];
     }
@@ -40,17 +42,17 @@ Assumes orders has already been updated with requested floor.
 */
 void addToQueue(int floorToAdd)
 {
-    if(floorToAdd > (N_FLOORS - 1) || floorToAdd < 0 || currentStatus == floorToAdd) //floorToAdd has invalid value
+    if (floorToAdd > (N_FLOORS - 1) || floorToAdd < 0 || currentStatus == floorToAdd) //floorToAdd has invalid value
     {
         printf("addToQueue received invalid floor...\n");
         return;
     }
-    if(target_floor_queue[0] < 0) //queue is empty..
+    if (target_floor_queue[0] < 0) //queue is empty..
     { 
             target_floor_queue[0] = floorToAdd;
             return;
     }
-    if(target_floor_queue[0] == floorToAdd)
+    if (target_floor_queue[0] == floorToAdd)
     {
         return;
     }
@@ -58,7 +60,7 @@ void addToQueue(int floorToAdd)
     //Figuring out which direction the new order has.
     int dirRequested = -2; //0 for either, -1 for down etc..
     bool bothDirs = 0;
-    if(orders[floorToAdd].elev || floorToAdd == 3 || floorToAdd == 0)
+    if (orders[floorToAdd].elev || floorToAdd == 3 || floorToAdd == 0)
     {
         dirRequested = 0;
     } 
@@ -78,71 +80,62 @@ void addToQueue(int floorToAdd)
     assert(target_floor_queue[0] != lastFloor);
     int signCurrentDir = (target_floor_queue[0] - lastFloor)/abs(target_floor_queue[0] - lastFloor);
 
-    if(signCurrentDir == dirRequested || (!dirRequested))
+    if (signCurrentDir == dirRequested || (!dirRequested))
         {
-            if(max(target_floor_queue[0], lastFloor) > floorToAdd && min(target_floor_queue[0], lastFloor) < floorToAdd) {
-                printf("Decided floor already enroute");
-                
-                //new code below
-                if(bothDirs)
+            if (max(target_floor_queue[0], lastFloor) > floorToAdd && 
+                min(target_floor_queue[0], lastFloor) < floorToAdd) 
+            {
+                if (bothDirs)
                 {
                     bothDirs = 0;
                     dirRequested = -1* signCurrentDir;
                 }
-                else{
+                else
+                {
                     return;
                 }
-                //new code above
-
-                /*oldCOde
-                return;
-                */
             } 
             else if ((signCurrentDir > 0 && target_floor_queue[0] <= floorToAdd) ||
-                    (signCurrentDir < 0 && target_floor_queue[0] >= floorToAdd)){
-                    target_floor_queue[0] = floorToAdd;
-                    printf("Decided floor is the new extremity for current route");
-                    return;
+                    (signCurrentDir < 0 && target_floor_queue[0] >= floorToAdd))
+            {
+                target_floor_queue[0] = floorToAdd;
+                printf("Decided floor is the new extremity for current route");
+                return;
             }
         }
 
 	 
-    for(int i = 1; i < target_floor_queue_size; i++)
+    for (int i = 1; i < target_floor_queue_size; i++)
     {
-        if(target_floor_queue[i] < 0)//if no more elements in queue..
+        if (target_floor_queue[i] < 0)//if no more elements in queue..
         {
             target_floor_queue[i] = floorToAdd;
-            printf("Appended floor to queue");
             return;
         }
-        if(target_floor_queue[i] == floorToAdd)
+        if (target_floor_queue[i] == floorToAdd)
         {
-            printf("Floor already in queue at appropriate spot..");
             return;
         }
         assert(target_floor_queue[i] != target_floor_queue[i-1]);
         signCurrentDir = (target_floor_queue[i] - target_floor_queue[i-1])/abs(target_floor_queue[i] - target_floor_queue[i-1]);
-        if(signCurrentDir == dirRequested || (!dirRequested))
+        if (signCurrentDir == dirRequested || (!dirRequested))
         {
-            if(max(target_floor_queue[i], target_floor_queue[i-1]) > floorToAdd && min(target_floor_queue[i], target_floor_queue[i-1]) < floorToAdd){
-                printf("Decided floor already enroute");
-                //new code below
+            if (max(target_floor_queue[i], target_floor_queue[i-1]) > floorToAdd && 
+                min(target_floor_queue[i], target_floor_queue[i-1]) < floorToAdd)
+            {
                 if(bothDirs)
                 {
                     bothDirs = 0;
                     dirRequested = -1* signCurrentDir;
                 }
-                else{
+                else
+                {
                     return;
                 }
-                //new code above
-
-                /*oldCOde
-                return;
-                */
             } 
             else if ((signCurrentDir > 0 && target_floor_queue[i] <= floorToAdd) ||
-                    (signCurrentDir < 0 && target_floor_queue[i] >= floorToAdd)){
+                    (signCurrentDir < 0 && target_floor_queue[i] >= floorToAdd))
+            {
                     target_floor_queue[i] = floorToAdd;
                     printf("Decided floor is the new extremity for current route");
                     return;
@@ -153,20 +146,25 @@ void addToQueue(int floorToAdd)
 
 void clearQueueAndOrders(){
     int i = 0;
-    while(target_floor_queue[i] > -1 && i < target_floor_queue_size){
+    while (target_floor_queue[i] > -1 && i < target_floor_queue_size)
+    {
         target_floor_queue[i] = -1;
         ++i;
     }
-    for(int j = 0; j < N_FLOORS; j++){
-        if(orders[j].elev){
+    for (int j = 0; j < N_FLOORS; j++)
+    {
+        if (orders[j].elev)
+        {
             orders[j].elev = 0;
             elev_set_button_lamp(BUTTON_COMMAND, j,0);
         }
-        if(j < (N_FLOORS - 1) && orders[j].up){
+        if (j < (N_FLOORS - 1) && orders[j].up)
+        {
             orders[j].up = 0;
             elev_set_button_lamp(BUTTON_CALL_UP, j,0);
         }
-        if(j > 0 && orders[j].down){
+        if (j > 0 && orders[j].down)
+        {
             orders[j].down = 0;
             elev_set_button_lamp(BUTTON_CALL_DOWN, j,0);
         }
@@ -180,9 +178,7 @@ void driveToInitialState()
 {
     while (elev_get_floor_sensor_signal() < 0)
     {
-       
         moveElevator(-1);
-       
     }
     moveElevator(0);
     currentStatus = elev_get_floor_sensor_signal();
@@ -222,14 +218,6 @@ void emergencyStop()
 
     if (elev_get_floor_sensor_signal() != -1)
     {
-        /* old code
-        timer doorTimer = get_wall_time();
-        while((get_wall_time() - doorTimer) < 3)
-        {
-            continue;
-        }
-        closeDoor();*/ 
-
         setTimer();
     }
 }
