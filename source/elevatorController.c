@@ -37,7 +37,6 @@ void shiftFromQueue()//removes first element from queue
 }
 
 /*
-Assumes elevator not on floorToAdd..
 Assumes orders has already been updated with requested floor.
 */
 void addToQueue(int floorToAdd)
