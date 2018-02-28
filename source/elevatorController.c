@@ -234,6 +234,10 @@ void emergencyStop()
         openDoor();
        
     }
+    else 
+    {
+        lastFloor = -1;
+    }
     while (elev_get_stop_signal())
     {
         continue;
