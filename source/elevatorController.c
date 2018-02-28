@@ -9,16 +9,15 @@
 #include "door.h"
 
 //private variables for elevatorController
-orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
-int lastFloor = -1; // 0 through N_FLOORS - 1, should match elevator status light on panel..
-elev_status_enum currentStatus = -1;
+orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}}; //should match button lights and thus unhandled requests
+int lastFloor = -1; // 0 through N_FLOORS - 1, should match elevator status light on panel. Should only be -1 before init..
+elev_status_enum currentStatus = -1; //contains floor sensor reading
 elev_motor_direction_t dir = 0; // 1 for up, 0 for stationary and -1 for down
 int target_floor_queue[N_FLOORS] = {-1,-1,-1,-1}; //investigate reducing size of queue
 int target_floor_queue_size = N_FLOORS; //arbitrary size, could be halved..
-bool unhandledEmergency = false;
+bool unhandledEmergency = false; //bool used for keeping track of strange destinations as a result of emergency stops between floors.
 
-
-// return seconds
+// return unix time in seconds
 double get_wall_time(void)
 {
     struct timeval time;
@@ -35,22 +34,15 @@ void shiftFromQueue()//removes first element from queue
     target_floor_queue[target_floor_queue_size-1] = -1;
 }
 
-/*
-Assumes orders has already been updated with requested floor.
-*/
+//Adds requested floor to queue, if not already enroute in existing destinations, assumes orders array already updated.
 void addToQueue(int floorToAdd)
 {
-    if (floorToAdd > (N_FLOORS - 1) || floorToAdd < 0) //floorToAdd has invalid value
-    {
-        printf("addToQueue received invalid floor...\n");
-        return;
-    }
     if (target_floor_queue[0] < 0) //queue is empty..
     { 
             target_floor_queue[0] = floorToAdd;
             return;
     }
-    if (target_floor_queue[0] == floorToAdd)
+    if (target_floor_queue[0] == floorToAdd) //target already first in queue..
     {
         return;
     }
@@ -58,7 +50,7 @@ void addToQueue(int floorToAdd)
     //Figuring out which direction the new order has.
     int dirRequested = -2; //0 for either, -1 for down etc..
     bool bothDirs = 0;
-    if (orders[floorToAdd].elev || floorToAdd == 3 || floorToAdd == 0)
+    if (orders[floorToAdd].elev || floorToAdd == (N_FLOORS - 1) || floorToAdd == 0)
     {
         dirRequested = 0;
     } 
@@ -67,44 +59,34 @@ void addToQueue(int floorToAdd)
         dirRequested = orders[floorToAdd].up - orders[floorToAdd].down;
         bothDirs = (orders[floorToAdd].up && orders[floorToAdd].down);
     }
-    if(dirRequested < -1) //floorToAdd has invalid value
-    {
-        printf("addToQueue has been called without corresponding data in orders.\n");
-        return;
-    }
-    //order stuff done
+    assert(dirRequested > -2) //unable to discern direction of given request (usually a result of no orders present on floorToAdd)
 
-
-
-    assert(target_floor_queue[0] != lastFloor); //MAJOR FUCKUPS IF EMERGENCY LEADS TO THIS....
-    elev_motor_direction_t signCurrentDir = getDestinationDir(); //GetDestinationDir should handle setting a different direction if unhandledemergency is present
+    elev_motor_direction_t signCurrentDir = getDestinationDir();
 
     if (signCurrentDir == dirRequested || (!dirRequested)) // tests if the requested direction is the same as the current direction of elevator.
+    {
+        if ((max(target_floor_queue[0], lastFloor) > floorToAdd && 
+            min(target_floor_queue[0], lastFloor) < floorToAdd ) || //before ||: tests if the requested floor is within the route
+            (currentStatus > -1 && floorToAdd == currentStatus)) //tests if the elevator is already on the requested floor
         {
-            if ((max(target_floor_queue[0], lastFloor) > floorToAdd && 
-                min(target_floor_queue[0], lastFloor) < floorToAdd ) || //before ||: tests if the requested floor is within the route
-                (currentStatus > -1 && floorToAdd == currentStatus)) //tests if the elevator is already on the requested floor
+            if (bothDirs) //if both directions are pressed and floor is enroute, this snippet makes it forget about the direction that is already enroute
             {
-                if (bothDirs) //if both directions are pressed, this snippet makes it forget about the direction that is already enroute
-                {
-                    bothDirs = 0;
-                    dirRequested = -1*signCurrentDir;
-                }
-                else
-                {
-                    return;
-                }
-            } 
-            else if ((signCurrentDir > 0 && target_floor_queue[0] <= floorToAdd) ||
-                    (signCurrentDir < 0 && target_floor_queue[0] >= floorToAdd))
+                bothDirs = 0;
+                dirRequested = -1*signCurrentDir;
+            }
+            else
             {
-                target_floor_queue[0] = floorToAdd;
-                printf("Decided floor is the new extremity for current route");
                 return;
             }
+        } 
+        else if ((signCurrentDir > 0 && target_floor_queue[0] <= floorToAdd) ||
+                (signCurrentDir < 0 && target_floor_queue[0] >= floorToAdd))
+        {
+            target_floor_queue[0] = floorToAdd;
+            return;
         }
+    }
 
-	 
     for (int i = 1; i < target_floor_queue_size; i++)
     {
         if (target_floor_queue[i] < 0)//if no more elements in queue..
@@ -123,15 +105,7 @@ void addToQueue(int floorToAdd)
             if (max(target_floor_queue[i], target_floor_queue[i-1]) > floorToAdd && 
                 min(target_floor_queue[i], target_floor_queue[i-1]) < floorToAdd)
             {
-                if(bothDirs)
-                {
-                    bothDirs = 0;
-                    dirRequested = -1* signCurrentDir;
-                }
-                else
-                {
-                    return;
-                }
+                return;
             } 
             else if ((signCurrentDir > 0 && target_floor_queue[i] <= floorToAdd) || //decided if the new floor is "more" extreme than the existing destination for that direction
                     (signCurrentDir < 0 && target_floor_queue[i] >= floorToAdd)) //if so, overwrite the existing destination
@@ -144,7 +118,8 @@ void addToQueue(int floorToAdd)
     }
 }
 
-void clearQueueAndOrders(){
+void clearQueueAndOrders()
+{
     int i = 0;
     while (target_floor_queue[i] > -1 && i < target_floor_queue_size)
     {
@@ -171,14 +146,11 @@ void clearQueueAndOrders(){
     }
 }
 
-
-
-
 void driveToInitialState()
 {
     while (elev_get_floor_sensor_signal() < 0)
     {
-        moveElevator(-1);
+        moveElevator(DIRN_DOWN);
     }
     moveElevator(0);
     currentStatus = elev_get_floor_sensor_signal();
@@ -189,9 +161,7 @@ void driveToInitialState()
 
 void moveElevator(elev_motor_direction_t direction)
 {
-    dir = direction;
-    //currentStatus = -1;
-    closeDoor();
+    dir = direction; // removed closeDoors() call from here, shouldn't be necessary..
     elev_set_motor_direction(dir);
 }
 
@@ -214,15 +184,11 @@ void emergencyStop()
         continue;
     }
     elev_set_stop_lamp(0);
-
     if (elev_get_floor_sensor_signal() != -1)
     {
         setTimer();
     }
 }
-
-
-
 
 void reachedFloor(int floor)
 {
@@ -233,14 +199,11 @@ void reachedFloor(int floor)
     if (target_floor_queue[0] == floor)
     {
         shiftFromQueue();
-
-        //code to test if we need to reset button lights here?
         if(floor < 3)
         {
             orders[floor].up = 0;
             elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
         }
-            
         if(floor > 0)
         {
             orders[floor].down = 0;
@@ -248,8 +211,7 @@ void reachedFloor(int floor)
         }
         orders[floor].elev = 0;
         elev_set_button_lamp(BUTTON_COMMAND,floor,0);
-
-        moveElevator(0);
+        moveElevator(DIRN_STOP);
         setTimer();
     }
     else if ((orders[floor].elev) || (getDestinationDir() == DIRN_UP && orders[floor].up) || (getDestinationDir() == DIRN_DOWN && orders[floor].down))
@@ -259,7 +221,7 @@ void reachedFloor(int floor)
             orders[floor].elev=0;
             elev_set_button_lamp(BUTTON_COMMAND,floor,0);
         }
-        if (orders[floor].up && getDestinationDir() == DIRN_UP) //NOT GOOD ENOUGH, NEEDS TO CHECK FOR TARGET DIR, AND NOT JUST CURRENT DIR
+        if (orders[floor].up && getDestinationDir() == DIRN_UP)
         {
             orders[floor].up = 0;
             elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
@@ -269,7 +231,7 @@ void reachedFloor(int floor)
             orders[floor].down = 0;
             elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
         }
-        moveElevator(0);
+        moveElevator(DIRN_DOWN);
         setTimer();
     }
 }
@@ -303,55 +265,39 @@ void goToDestination()
 {
     if (target_floor_queue[0] > -1 && timerStatus())
     {
+        moveElevator(getDestinationDir());
+    }
+}
+
+elev_motor_direction_t getDestinationDir(){
+    if (target_floor_queue[0] > -1)
+    {
         if(unhandledEmergency)
         {
             if ((target_floor_queue[0] > lastFloor && dir > 0 ) ||
                 (target_floor_queue[0] == lastFloor && dir < 0 ))
             {
                 
-                moveElevator(1);
+                return DIRN_UP;
             }
             else
             {
-                moveElevator(-1);
-            } 
-            unhandledEmergency = 0;
+                return DIRN_DOWN;
+            }
         }
-        else
+        else 
         {
-           moveElevator(getDestinationDir());
-        }
-    }
-}
-
-elev_motor_direction_t getDestinationDir(){
-    if (currentStatus > -1 && target_floor_queue[0] > -1)
-    {
-        if (target_floor_queue[0] > currentStatus)
-        {
-            return DIRN_UP;
-        } 
-        else if (target_floor_queue[0] < currentStatus) 
-        {
-            return DIRN_DOWN;
+            if(target_floor_queue[0] > lastFloor)
+            {
+                return DIRN_UP;
+            }
+            else if (target_floor_queue[0] < lastFloor)
+            {
+                return DIRN_DOWN;
+            }
         }
     }
-    else if(lastFloor > -1 && target_floor_queue[0] > -1)
-    {
-        if (target_floor_queue[0] > lastFloor)
-        {
-            return DIRN_UP;
-        } 
-        else if (target_floor_queue[0] < lastFloor) 
-        {
-            return DIRN_DOWN;
-        }
-    } 
-    else 
-    {
-        printf("unable to dicern destinationdir");
-        return 0;
-    } 
+    return DIRN_STOP; 
 }
 
 void runElevator()
@@ -361,9 +307,9 @@ void runElevator()
     {
         currentStatus = elev_get_floor_sensor_signal();
         pollButtons();
-        //currentStatus = elev_get_floor_sensor_signal();
         if(currentStatus > -1)
         {
+            unhandledEmergency = 0;
             reachedFloor(currentStatus);
         }
         goToDestination();
