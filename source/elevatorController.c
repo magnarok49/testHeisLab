@@ -31,7 +31,15 @@ void shiftFromQueue()
     {
         target_floor_queue[i] = target_floor_queue[i+1];
     }
-    target_floor_queue[target_floor_queue_size-1] = -1;
+    target_floor_queue[target_floor_queue_size - 1] = -1;
+}
+
+void insertIntoQueue(int value, int index){ //inserts before given index
+	for (int i = target_floor_queue_size - 1; i > index; i--)
+    {
+        target_floor_queue[i] = target_floor_queue[i-1];
+    }
+    target_floor_queue[index] = value;
 }
 
 //Adds requested floor to queue, if not already enroute in existing destinations, assumes orders array already updated.
@@ -43,10 +51,14 @@ void addToQueue(int floorToAdd)
         target_floor_queue[0] = floorToAdd;
         return;
     }
+    else if (target_floor_queue[0] == floorToAdd) //queue is empty..
+    { 
+        return;
+    }
+
 
     //Figuring out which direction the new order has.
     int dirRequested = -2; //0 for either, -1 for down etc..
-    bool bothDirs = 0;
     elev_motor_direction_t signCurrentDir = getDestinationDir();
 
     if (orders[floorToAdd].elev || floorToAdd == (N_FLOORS - 1) || floorToAdd == 0 || 
@@ -58,41 +70,34 @@ void addToQueue(int floorToAdd)
     {
         dirRequested = orders[floorToAdd].up - orders[floorToAdd].down;
     }
-    if((!dirRequested) && floorToAdd > 0 && floorToAdd < (N_FLOORS - 1) &&
-        ((orders[floorToAdd].up && orders[floorToAdd].down) || 
-        (orders[floorToAdd].up - orders[floorToAdd].down) == -1*signCurrentDir))
-    {
-        bothDirs = 1;
-    }
 
     if ((signCurrentDir == dirRequested || (!dirRequested)) &&
         ((max(target_floor_queue[0], lastFloor) > floorToAdd && 
         min(target_floor_queue[0], lastFloor) < floorToAdd ) || //before ||: tests if the requested floor is within the route
         (currentStatus > -1 && floorToAdd == currentStatus))) //tests if the elevator is already on the requested floor
     {
-        if (bothDirs) //if both directions are pressed and floor is enroute, this snippet makes it forget about the direction that is already enroute
+        if((orders[target_floor_queue[0]].up && signCurrentDir < 0) ||
+        	(orders[target_floor_queue[0]].down && signCurrentDir > 0))
         {
-            bothDirs = 0;
-            dirRequested = -1*signCurrentDir;
+        	dirRequested = -1*signCurrentDir;
         }
         else
         {
             return;
         }
     } 
-    else if ((signCurrentDir > 0 && target_floor_queue[0] <= floorToAdd) ||
-                (signCurrentDir < 0 && target_floor_queue[0] >= floorToAdd))
+    else if ((signCurrentDir > 0 && target_floor_queue[0] < floorToAdd) ||
+                (signCurrentDir < 0 && target_floor_queue[0] > floorToAdd))
     {
+        if(((orders[target_floor_queue[0]].up && signCurrentDir < 0) ||
+        	(orders[target_floor_queue[0]].down && signCurrentDir > 0)) &&
+        	target_floor_queue[1] == -1) //no need to insert if elevator is already turning around after the first stop
+        {
+        	insertIntoQueue(floorToAdd,0);
+        	return;
+        }
         target_floor_queue[0] = floorToAdd;
-        if (bothDirs) //if both directions are pressed and floor is enroute, this snippet makes it forget about the direction that is already enroute
-        {
-            bothDirs = 0;
-            dirRequested = -1*signCurrentDir;
-        }
-        else
-        {
-            return;
-        }
+        return;
     }
 
     for (int i = 1; i < target_floor_queue_size; i++)
@@ -126,7 +131,6 @@ void addToQueue(int floorToAdd)
                 (signCurrentDir <= 0 && target_floor_queue[i] >= floorToAdd)) //if so, overwrite the existing destination
         {
                 target_floor_queue[i] = floorToAdd;
-                printf("Decided floor is the new extremity for current route");
                 return;
         }
     }
@@ -175,8 +179,27 @@ void driveToInitialState()
 
 void moveElevator(elev_motor_direction_t direction)
 {
-    dir = direction; // removed closeDoors() call from here, shouldn't be necessary..
-    elev_set_motor_direction(dir);
+    if(!unhandledEmergency) //direction needs to stay constant while an emergency is being handled
+    {
+    	dir = direction;
+    }
+    //dir = direction; // removed closeDoors() call from here, shouldn't be necessary..
+    elev_set_motor_direction(direction);
+}
+
+void printQueue()
+{
+	for(int i = 0; i < target_floor_queue_size - 1; i++)
+	{
+		if(target_floor_queue[i]==-1)
+		{
+			printf("\n");
+			return;
+		}
+		printf("%d", target_floor_queue[i]);
+		printf(" ");
+	}
+	printf("\n");
 }
 
 void emergencyStop()
@@ -245,7 +268,7 @@ void reachedFloor(int floor)
             orders[floor].down = 0;
             elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
         }
-        moveElevator(DIRN_DOWN);
+        moveElevator(DIRN_STOP);
         setTimer();
     }
 }
@@ -319,6 +342,7 @@ void runElevator()
     {
         currentStatus = elev_get_floor_sensor_signal();
         pollButtons();
+        printQueue();
         if(currentStatus > -1)
         {
             unhandledEmergency = 0;
