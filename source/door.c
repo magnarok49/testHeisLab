@@ -22,28 +22,17 @@ void checkTimer()
     {
         doorTimer = 0;
         closeDoor();
-        //printf("Timer reset & door closed");
         return;
     }
-    //printf("Timer not reset & door still open");
-    //double var = get_wall_time()-doorTimer;
-    //printf("%lf", var);
-    //printf("\n");
-    //printf("%lf", get_wall_time());
 }
 
 void setTimer()
 {
     openDoor();
     doorTimer = get_wall_time();
-    //printf("Timer set & door open");
 }
 
 bool timerStatus()
 {
     return doorTimer == 0;
 }
-
-
-
-

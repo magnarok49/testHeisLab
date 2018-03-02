@@ -9,13 +9,13 @@
 #include "door.h"
 
 //private variables for elevatorController
-orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}}; //should match button lights and thus unhandled requests
-int lastFloor = -1; // 0 through N_FLOORS - 1, should match elevator status light on panel. Should only be -1 before init..
-elev_status_enum currentStatus = -1; //contains floor sensor reading
-elev_motor_direction_t dir = 0; // 1 for up, 0 for stationary and -1 for down
-int target_floor_queue[N_FLOORS] = {-1,-1,-1,-1}; //investigate reducing size of queue
-int target_floor_queue_size = N_FLOORS; //arbitrary size, could be halved..
-bool unhandledEmergency = false; //bool used for keeping track of strange destinations as a result of emergency stops between floors.
+orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};   //should match button lights and thus unhandled requests
+int lastFloor = -1;                                                 //0 through N_FLOORS - 1, should match elevator status light on panel. Should only be -1 before init..
+elev_status_enum currentStatus = -1;                                //contains floor sensor reading
+elev_motor_direction_t dir = 0;                                     //1 for up, 0 for stationary and -1 for down
+int target_floor_queue[N_FLOORS] = {-1,-1,-1,-1};                   //investigate reducing size of queue
+int target_floor_queue_size = N_FLOORS;                             //arbitrary size, could be halved..
+bool unhandledEmergency = false;                                    //bool used for keeping track of strange destinations as a result of emergency stops between floors.
 
 // return unix time in seconds
 double get_wall_time(void)
@@ -24,8 +24,8 @@ double get_wall_time(void)
     gettimeofday(&time, NULL);
     return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
-
-void shiftFromQueue()//removes first element from queue
+//removes first element from queue
+void shiftFromQueue()
 {
     for (int i = 0; i < (target_floor_queue_size - 1); i++)
     {
@@ -39,8 +39,8 @@ void addToQueue(int floorToAdd)
 {
     if (target_floor_queue[0] < 0) //queue is empty..
     { 
-            target_floor_queue[0] = floorToAdd;
-            return;
+        target_floor_queue[0] = floorToAdd;
+        return;
     }
     if (target_floor_queue[0] == floorToAdd) //target already first in queue..
     {
@@ -50,14 +50,18 @@ void addToQueue(int floorToAdd)
     //Figuring out which direction the new order has.
     int dirRequested = -2; //0 for either, -1 for down etc..
     bool bothDirs = 0;
-    if (orders[floorToAdd].elev || floorToAdd == (N_FLOORS - 1) || floorToAdd == 0)
+    if (orders[floorToAdd].elev || floorToAdd == (N_FLOORS - 1) || floorToAdd == 0 || 
+        (orders[floorToAdd].up && orders[floorToAdd].down))
     {
         dirRequested = 0;
-    } 
-    else if (orders[floorToAdd].up || orders[floorToAdd].down)
+    }
+    else
     {
         dirRequested = orders[floorToAdd].up - orders[floorToAdd].down;
-        bothDirs = (orders[floorToAdd].up && orders[floorToAdd].down);
+    }
+    if((!dirRequested) && (orders[floorToAdd].up || orders[floorToAdd].down) && 
+        floorToAdd > 0 && floorToAdd < (N_FLOORS - 1)){
+        bothDirs = 1;
     }
     assert(dirRequested > -2) //unable to discern direction of given request (usually a result of no orders present on floorToAdd)
 
@@ -260,7 +264,6 @@ void pollButtons(){
     }
 }
 
-
 void goToDestination()
 {
     if (target_floor_queue[0] > -1 && timerStatus())
@@ -277,7 +280,6 @@ elev_motor_direction_t getDestinationDir(){
             if ((target_floor_queue[0] > lastFloor && dir > 0 ) ||
                 (target_floor_queue[0] == lastFloor && dir < 0 ))
             {
-                
                 return DIRN_UP;
             }
             else
