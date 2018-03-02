@@ -37,6 +37,7 @@ void shiftFromQueue()
 //Adds requested floor to queue, if not already enroute in existing destinations, assumes orders array already updated.
 void addToQueue(int floorToAdd)
 {
+    assert(orders[floorToAdd].elev || orders[floorToAdd].up || orders[floorToAdd].down);
     if (target_floor_queue[0] < 0) //queue is empty..
     { 
         target_floor_queue[0] = floorToAdd;
@@ -50,6 +51,8 @@ void addToQueue(int floorToAdd)
     //Figuring out which direction the new order has.
     int dirRequested = -2; //0 for either, -1 for down etc..
     bool bothDirs = 0;
+    elev_motor_direction_t signCurrentDir = getDestinationDir();
+
     if (orders[floorToAdd].elev || floorToAdd == (N_FLOORS - 1) || floorToAdd == 0 || 
         (orders[floorToAdd].up && orders[floorToAdd].down))
     {
@@ -59,13 +62,12 @@ void addToQueue(int floorToAdd)
     {
         dirRequested = orders[floorToAdd].up - orders[floorToAdd].down;
     }
-    if((!dirRequested) && (orders[floorToAdd].up || orders[floorToAdd].down) && 
-        floorToAdd > 0 && floorToAdd < (N_FLOORS - 1)){
+    if((!dirRequested) && floorToAdd > 0 && floorToAdd < (N_FLOORS - 1) &&
+        ((orders[floorToAdd].up && orders[floorToAdd].down) || 
+        (orders[floorToAdd].up - orders[floorToAdd].down) == -1*signCurrentDir))
+    {
         bothDirs = 1;
     }
-    assert(dirRequested > -2) //unable to discern direction of given request (usually a result of no orders present on floorToAdd)
-
-    elev_motor_direction_t signCurrentDir = getDestinationDir();
 
     if (signCurrentDir == dirRequested || (!dirRequested)) // tests if the requested direction is the same as the current direction of elevator.
     {
