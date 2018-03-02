@@ -43,10 +43,6 @@ void addToQueue(int floorToAdd)
         target_floor_queue[0] = floorToAdd;
         return;
     }
-    if (target_floor_queue[0] == floorToAdd) //target already first in queue..
-    {
-        return;
-    }
 
     //Figuring out which direction the new order has.
     int dirRequested = -2; //0 for either, -1 for down etc..
@@ -69,26 +65,32 @@ void addToQueue(int floorToAdd)
         bothDirs = 1;
     }
 
-    if (signCurrentDir == dirRequested || (!dirRequested)) // tests if the requested direction is the same as the current direction of elevator.
+    if ((signCurrentDir == dirRequested || (!dirRequested)) &&
+        ((max(target_floor_queue[0], lastFloor) > floorToAdd && 
+        min(target_floor_queue[0], lastFloor) < floorToAdd ) || //before ||: tests if the requested floor is within the route
+        (currentStatus > -1 && floorToAdd == currentStatus))) //tests if the elevator is already on the requested floor
     {
-        if ((max(target_floor_queue[0], lastFloor) > floorToAdd && 
-            min(target_floor_queue[0], lastFloor) < floorToAdd ) || //before ||: tests if the requested floor is within the route
-            (currentStatus > -1 && floorToAdd == currentStatus)) //tests if the elevator is already on the requested floor
+        if (bothDirs) //if both directions are pressed and floor is enroute, this snippet makes it forget about the direction that is already enroute
         {
-            if (bothDirs) //if both directions are pressed and floor is enroute, this snippet makes it forget about the direction that is already enroute
-            {
-                bothDirs = 0;
-                dirRequested = -1*signCurrentDir;
-            }
-            else
-            {
-                return;
-            }
-        } 
-        else if ((signCurrentDir > 0 && target_floor_queue[0] <= floorToAdd) ||
+            bothDirs = 0;
+            dirRequested = -1*signCurrentDir;
+        }
+        else
+        {
+            return;
+        }
+    } 
+    else if ((signCurrentDir > 0 && target_floor_queue[0] <= floorToAdd) ||
                 (signCurrentDir < 0 && target_floor_queue[0] >= floorToAdd))
+    {
+        target_floor_queue[0] = floorToAdd;
+        if (bothDirs) //if both directions are pressed and floor is enroute, this snippet makes it forget about the direction that is already enroute
         {
-            target_floor_queue[0] = floorToAdd;
+            bothDirs = 0;
+            dirRequested = -1*signCurrentDir;
+        }
+        else
+        {
             return;
         }
     }
@@ -104,22 +106,28 @@ void addToQueue(int floorToAdd)
         {
             return;
         }
-        assert(target_floor_queue[i] != target_floor_queue[i-1]);
-        signCurrentDir = (target_floor_queue[i] - target_floor_queue[i-1])/abs(target_floor_queue[i] - target_floor_queue[i-1]);
-        if (signCurrentDir == dirRequested || (!dirRequested))
+        
+        if(target_floor_queue[i] == target_floor_queue[i-1])
         {
-            if (max(target_floor_queue[i], target_floor_queue[i-1]) > floorToAdd && 
-                min(target_floor_queue[i], target_floor_queue[i-1]) < floorToAdd)
-            {
+            signCurrentDir = 0;
+        }
+        else 
+        {
+            signCurrentDir = (target_floor_queue[i] - target_floor_queue[i-1])/abs(target_floor_queue[i] - target_floor_queue[i-1]);
+        }
+
+        if ((signCurrentDir == dirRequested || (!dirRequested)) &&
+            max(target_floor_queue[i], target_floor_queue[i-1]) > floorToAdd && 
+            min(target_floor_queue[i], target_floor_queue[i-1]) < floorToAdd)
+        {
+            return;
+        } 
+        else if ((signCurrentDir >= 0 && target_floor_queue[i] <= floorToAdd) || //decided if the new floor is "more" extreme than the existing destination for that direction
+                (signCurrentDir <= 0 && target_floor_queue[i] >= floorToAdd)) //if so, overwrite the existing destination
+        {
+                target_floor_queue[i] = floorToAdd;
+                printf("Decided floor is the new extremity for current route");
                 return;
-            } 
-            else if ((signCurrentDir > 0 && target_floor_queue[i] <= floorToAdd) || //decided if the new floor is "more" extreme than the existing destination for that direction
-                    (signCurrentDir < 0 && target_floor_queue[i] >= floorToAdd)) //if so, overwrite the existing destination
-            {
-                    target_floor_queue[i] = floorToAdd;
-                    printf("Decided floor is the new extremity for current route");
-                    return;
-            }
         }
     }
 }
