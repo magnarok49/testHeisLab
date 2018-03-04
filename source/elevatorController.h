@@ -22,6 +22,14 @@ double get_wall_time(void);
 * used upon reaching the destination floor*/
 void shiftFromQueue();
 
+/*Inserts value element into the destination queue
+* BEFORE the given index*/
+void insertIntoQueue(int value, int index);
+
+/*Used solely for debugging purposes:
+* prints the current destination queue to terminal*/
+void printQueue();
+
 /*the workhorse of the queue setup
 * adds a given floor to the destination queue
 * given that it is not already in the current route.

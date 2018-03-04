@@ -2,7 +2,7 @@
 #include "elev.h"
 #include <sys/time.h>
 #include <stdio.h>
-#include <string.h>
+#include <string.h>//do we even use this?
 #include <assert.h>
 #include "utilities.h"
 #include <stdlib.h>
@@ -186,7 +186,8 @@ void moveElevator(elev_motor_direction_t direction)
 
 void printQueue()
 {
-	for(int i = 0; i < target_floor_queue_size - 1; i++)
+	//printf("\033[F" + "\033[K"); //should go up one line and clear it, untested
+    for(int i = 0; i < target_floor_queue_size - 1; i++)
 	{
 		if(target_floor_queue[i]==-1)
 		{
