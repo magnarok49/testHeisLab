@@ -17,14 +17,14 @@ int target_floor_queue[N_FLOORS] = {-1,-1,-1,-1};                   //investigat
 int target_floor_queue_size = N_FLOORS;                             //arbitrary size, could be halved..
 bool unhandledEmergency = false;                                    //bool used for keeping track of strange destinations as a result of emergency stops between floors.
 
-// return unix time in seconds
+//public methods for elevatorController
 double get_wall_time(void)
 {
     struct timeval time;
     gettimeofday(&time, NULL);
     return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
-//removes first element from queue
+
 void shiftFromQueue()
 {
     for (int i = 0; i < (target_floor_queue_size - 1); i++)
@@ -42,7 +42,6 @@ void insertIntoQueue(int value, int index){ //inserts before given index
     target_floor_queue[index] = value;
 }
 
-//Adds requested floor to queue, if not already enroute in existing destinations, assumes orders array already updated.
 void addToQueue(int floorToAdd)
 {
     assert(orders[floorToAdd].elev || orders[floorToAdd].up || orders[floorToAdd].down);
@@ -55,7 +54,6 @@ void addToQueue(int floorToAdd)
     { 
         return;
     }
-
 
     //Figuring out which direction the new order has.
     int dirRequested = -2; //0 for either, -1 for down etc..
@@ -87,7 +85,7 @@ void addToQueue(int floorToAdd)
         }
     } 
     else if ((signCurrentDir > 0 && target_floor_queue[0] < floorToAdd) ||
-                (signCurrentDir < 0 && target_floor_queue[0] > floorToAdd)) //if floor is the new extremity in the current direction
+            (signCurrentDir < 0 && target_floor_queue[0] > floorToAdd)) //if floor is the new extremity in the current direction
     {
         if(((orders[target_floor_queue[0]].up && signCurrentDir < 0) ||
         	(orders[target_floor_queue[0]].down && signCurrentDir > 0)) &&
@@ -112,7 +110,7 @@ void addToQueue(int floorToAdd)
             return;
         }
         
-        if(target_floor_queue[i] == target_floor_queue[i-1])//should never happen
+        if(target_floor_queue[i] == target_floor_queue[i-1])//SHOULD NEVER HAPPEN
         {
             signCurrentDir = 0;
         }
@@ -183,7 +181,6 @@ void moveElevator(elev_motor_direction_t direction)
     {
     	dir = direction;
     }
-    //dir = direction; // removed closeDoors() call from here, shouldn't be necessary..
     elev_set_motor_direction(direction);
 }
 
@@ -229,10 +226,9 @@ void emergencyStop()
 
 void reachedFloor(int floor)
 {
-    assert(floor >= 0);
     elev_set_floor_indicator(floor);
     lastFloor = floor;
-    currentStatus = floor;
+    currentStatus = floor;//SUPERFLUOUS... currentStatus already set to same floor in main loop
     if (target_floor_queue[0] == floor)
     {
         shiftFromQueue();
