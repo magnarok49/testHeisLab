@@ -62,22 +62,22 @@ void addToQueue(int floorToAdd)
     elev_motor_direction_t signCurrentDir = getDestinationDir();
 
     if (orders[floorToAdd].elev || floorToAdd == (N_FLOORS - 1) || floorToAdd == 0 || 
-        (orders[floorToAdd].up && orders[floorToAdd].down))
+        (orders[floorToAdd].up && orders[floorToAdd].down)) //if elevator should stop on given floor as soon as possible
     {
         dirRequested = 0;
     }
-    else
+    else //if the floor only has one direction ordered.
     {
         dirRequested = orders[floorToAdd].up - orders[floorToAdd].down;
     }
 
-    if ((signCurrentDir == dirRequested || (!dirRequested)) &&
+    if ((signCurrentDir == dirRequested || (!dirRequested)) && //if direction matches and floor is enroute
         ((max(target_floor_queue[0], lastFloor) > floorToAdd && 
-        min(target_floor_queue[0], lastFloor) < floorToAdd ) || //before ||: tests if the requested floor is within the route
-        (currentStatus > -1 && floorToAdd == currentStatus))) //tests if the elevator is already on the requested floor
+        min(target_floor_queue[0], lastFloor) < floorToAdd ) ||
+        (currentStatus > -1 && floorToAdd == currentStatus)))
     {
-        if((orders[target_floor_queue[0]].up && signCurrentDir < 0) ||
-        	(orders[target_floor_queue[0]].down && signCurrentDir > 0))
+        if((orders[target_floor_queue[0]].up && signCurrentDir < 0) || 
+        	(orders[target_floor_queue[0]].down && signCurrentDir > 0)) //if there is an order placed for the opposite direction 
         {
         	dirRequested = -1*signCurrentDir;
         }
@@ -87,7 +87,7 @@ void addToQueue(int floorToAdd)
         }
     } 
     else if ((signCurrentDir > 0 && target_floor_queue[0] < floorToAdd) ||
-                (signCurrentDir < 0 && target_floor_queue[0] > floorToAdd))
+                (signCurrentDir < 0 && target_floor_queue[0] > floorToAdd)) //if floor is the new extremity in the current direction
     {
         if(((orders[target_floor_queue[0]].up && signCurrentDir < 0) ||
         	(orders[target_floor_queue[0]].down && signCurrentDir > 0)) &&
@@ -100,9 +100,9 @@ void addToQueue(int floorToAdd)
         return;
     }
 
-    for (int i = 1; i < target_floor_queue_size; i++)
+    for (int i = 1; i < target_floor_queue_size; i++) //there is really no need for this to be a loop, as the queue should never exceed two elements
     {
-        if (target_floor_queue[i] < 0)//if no more elements in queue..
+        if (target_floor_queue[i] < 0)
         {
             target_floor_queue[i] = floorToAdd;
             return;
@@ -112,22 +112,22 @@ void addToQueue(int floorToAdd)
             return;
         }
         
-        if(target_floor_queue[i] == target_floor_queue[i-1])
+        if(target_floor_queue[i] == target_floor_queue[i-1])//should never happen
         {
             signCurrentDir = 0;
         }
-        else 
+        else
         {
             signCurrentDir = (target_floor_queue[i] - target_floor_queue[i-1])/abs(target_floor_queue[i] - target_floor_queue[i-1]);
         }
 
         if ((signCurrentDir == dirRequested || (!dirRequested)) &&
             max(target_floor_queue[i], target_floor_queue[i-1]) > floorToAdd && 
-            min(target_floor_queue[i], target_floor_queue[i-1]) < floorToAdd)
+            min(target_floor_queue[i], target_floor_queue[i-1]) < floorToAdd) //floor is enroute
         {
             return;
         } 
-        else if ((signCurrentDir >= 0 && target_floor_queue[i] <= floorToAdd) || //decided if the new floor is "more" extreme than the existing destination for that direction
+        else if ((signCurrentDir >= 0 && target_floor_queue[i] <= floorToAdd) || //decided if the new floor is further than the existing destination for that direction
                 (signCurrentDir <= 0 && target_floor_queue[i] >= floorToAdd)) //if so, overwrite the existing destination
         {
                 target_floor_queue[i] = floorToAdd;
@@ -139,12 +139,12 @@ void addToQueue(int floorToAdd)
 void clearQueueAndOrders()
 {
     int i = 0;
-    while (target_floor_queue[i] > -1 && i < target_floor_queue_size)
+    while (target_floor_queue[i] > -1 && i < target_floor_queue_size)//clearing queue
     {
         target_floor_queue[i] = -1;
         ++i;
     }
-    for (int j = 0; j < N_FLOORS; j++)
+    for (int j = 0; j < N_FLOORS; j++)//clearing orders array and turning off eventual lights
     {
         if (orders[j].elev)
         {
