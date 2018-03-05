@@ -16,6 +16,7 @@ elev_motor_direction_t dir = 0;                                     //1 for up, 
 int target_floor_queue[N_FLOORS] = {-1,-1,-1,-1};                   //investigate reducing size of queue
 int target_floor_queue_size = N_FLOORS;                             //arbitrary size, could be halved..
 bool unhandledEmergency = false;                                    //bool used for keeping track of strange destinations as a result of emergency stops between floors.
+int unhandledDirectionalOrder = 0;
 
 //public methods for elevatorController
 double get_wall_time(void)
@@ -69,7 +70,16 @@ void addToQueue(int floorToAdd)
         dirRequested = orders[floorToAdd].up - orders[floorToAdd].down;
     }
 
-    if ((signCurrentDir == dirRequested || (!dirRequested)) &&
+    if (unhandledDirectionalOrder &&
+        ((unhandledDirectionalOrder > 0 && floorToAdd > currentStatus)||
+        (unhandledDirectionalOrder < 0 && floorToAdd < currentStatus))//ensures elev stopping for directional order prioritized those first.
+    {
+        insertIntoQueue(floorToAdd, 0);
+        unhandledDirectionalOrder = 0;
+    }
+
+
+    else if ((signCurrentDir == dirRequested || (!dirRequested)) &&
         ((max(target_floor_queue[0], lastFloor) > floorToAdd && 
         min(target_floor_queue[0], lastFloor) < floorToAdd ) ||
         (currentStatus > -1 && floorToAdd == currentStatus))) //if direction matches and floor is enroute
@@ -91,6 +101,7 @@ void addToQueue(int floorToAdd)
         	(orders[target_floor_queue[0]].down && signCurrentDir > 0)) &&
         	target_floor_queue[1] == -1) //no need to insert if elevator is already turning around after the first stop
         {
+
         	insertIntoQueue(floorToAdd,0);
         	return;
         }
@@ -182,6 +193,7 @@ void moveElevator(elev_motor_direction_t direction)
     	dir = direction;
     }
     elev_set_motor_direction(direction);
+    unhandledDirectionalOrder = 0;
 }
 
 void printQueue()
@@ -232,6 +244,11 @@ void reachedFloor(int floor)
     currentStatus = floor;//SUPERFLUOUS... currentStatus already set to same floor in main loop
     if (target_floor_queue[0] == floor)
     {
+        if(floor < (N_FLOORS - 1) && floor > 0)
+        {
+            unhandledDirectionalOrder = dir;//EMERGENCY STOP NEEDS FIXING, DIR SHOULD ALWAYS REFLECT DRIVING DIRECTION
+        }
+        
         shiftFromQueue();
         if(floor < 3)
         {
