@@ -69,13 +69,13 @@ void addToQueue(int floorToAdd)
         dirRequested = orders[floorToAdd].up - orders[floorToAdd].down;
     }
 
-    if ((signCurrentDir == dirRequested || (!dirRequested)) && //if direction matches and floor is enroute
+    if ((signCurrentDir == dirRequested || (!dirRequested)) &&
         ((max(target_floor_queue[0], lastFloor) > floorToAdd && 
         min(target_floor_queue[0], lastFloor) < floorToAdd ) ||
-        (currentStatus > -1 && floorToAdd == currentStatus)))
+        (currentStatus > -1 && floorToAdd == currentStatus))) //if direction matches and floor is enroute
     {
-        if((orders[target_floor_queue[0]].up && signCurrentDir < 0) || 
-        	(orders[target_floor_queue[0]].down && signCurrentDir > 0)) //if there is an order placed for the opposite direction 
+        if((orders[floorToAdd].up && signCurrentDir < 0) || 
+        	(orders[floorToDown].down && signCurrentDir > 0)) //if there is an order placed for the opposite direction 
         {
         	dirRequested = -1*signCurrentDir;
         }
