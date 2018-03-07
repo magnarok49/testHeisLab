@@ -141,6 +141,13 @@ void addToQueue(int floorToAdd)
         else if ((signCurrentDir >= 0 && target_floor_queue[i] <= floorToAdd) || //decided if the new floor is further than the existing destination for that direction
                 (signCurrentDir <= 0 && target_floor_queue[i] >= floorToAdd)) //if so, overwrite the existing destination
         {
+		if(((orders[target_floor_queue[i]].up && signCurrentDir < 0 && target_floor_queue[i] < lastFloor) ||
+        	(orders[target_floor_queue[i]].down && signCurrentDir > 0 && target_floor_queue[i] > lastFloor)))
+        	{
+
+        		insertIntoQueue(floorToAdd,i);
+        		return;
+        	}
                 target_floor_queue[i] = floorToAdd;
                 return;
         }
