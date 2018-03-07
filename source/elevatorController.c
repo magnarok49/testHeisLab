@@ -86,7 +86,7 @@ void addToQueue(int floorToAdd)
         (currentStatus > -1 && floorToAdd == currentStatus))) //if direction matches and floor is enroute
     {
         if((orders[floorToAdd].up && signCurrentDir < 0) || 
-        	(orders[floorToDown].down && signCurrentDir > 0)) //if there is an order placed for the opposite direction 
+        	(orders[floorToAdd].down && signCurrentDir > 0)) //if there is an order placed for the opposite direction 
         {
         	dirRequested = -1*signCurrentDir;
         }
