@@ -191,7 +191,10 @@ void moveElevator(elev_motor_direction_t direction)
 {
     dir = direction;
     elev_set_motor_direction(direction);
-    unhandledDirectionalOrder = 0;
+    if (direction)
+    {
+        unhandledDirectionalOrder = 0;
+    }
 }
 
 void printQueue()
