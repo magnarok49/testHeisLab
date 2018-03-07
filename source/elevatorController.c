@@ -17,6 +17,7 @@ int target_floor_queue[N_FLOORS] = {-1,-1,-1,-1};                   //investigat
 int target_floor_queue_size = N_FLOORS;                             //arbitrary size, could be halved..
 bool unhandledEmergency = false;                                    //bool used for keeping track of strange destinations as a result of emergency stops between floors.
 int unhandledDirectionalOrder = 0;
+double positionOnEmergency = -1; 
 
 //public methods for elevatorController
 double get_wall_time(void)
@@ -188,10 +189,7 @@ void driveToInitialState()
 
 void moveElevator(elev_motor_direction_t direction)
 {
-    if(!unhandledEmergency) //direction needs to stay constant while an emergency is being handled
-    {
-    	dir = direction;
-    }
+    dir = direction;
     elev_set_motor_direction(direction);
     unhandledDirectionalOrder = 0;
 }
@@ -224,6 +222,10 @@ void emergencyStop()
     }
     else 
     {
+        if(!unhandledEmergency && dir != 0)
+        {
+            positionOnEmergency = lastFloor + (dir*0.5);
+        }
         unhandledEmergency = 1;
     }
     while (elev_get_stop_signal())
@@ -244,7 +246,7 @@ void reachedFloor(int floor)
     currentStatus = floor;//SUPERFLUOUS... currentStatus already set to same floor in main loop
     if (target_floor_queue[0] == floor)
     {
-        if(floor < (N_FLOORS - 1) && floor > 0)
+        if(floor < (N_FLOORS - 1) && floor > 0) //makes elevator tend to continueing in a given direction, rather than turning on endpoints.
         {
             unhandledDirectionalOrder = dir;//EMERGENCY STOP NEEDS FIXING, DIR SHOULD ALWAYS REFLECT DRIVING DIRECTION
         }
@@ -324,12 +326,11 @@ elev_motor_direction_t getDestinationDir(){
     {
         if(unhandledEmergency)
         {
-            if ((target_floor_queue[0] > lastFloor && dir > 0 ) ||
-                (target_floor_queue[0] == lastFloor && dir < 0 ))
+            if(target_floor_queue[0] > positionOnEmergency)
             {
                 return DIRN_UP;
-            }
-            else
+            } 
+            else if (target_floor_queue[0] < positionOnEmergency)
             {
                 return DIRN_DOWN;
             }
@@ -360,6 +361,7 @@ void runElevator()
         if(currentStatus > -1)
         {
             unhandledEmergency = 0;
+            positionOnEmergency = -1;
             reachedFloor(currentStatus);
         }
         goToDestination();
