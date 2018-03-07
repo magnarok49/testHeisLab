@@ -73,7 +73,7 @@ void addToQueue(int floorToAdd)
 
     if (unhandledDirectionalOrder &&
         ((unhandledDirectionalOrder > 0 && floorToAdd > currentStatus)||
-        (unhandledDirectionalOrder < 0 && floorToAdd < currentStatus))//ensures elev stopping for directional order prioritized those first.
+        (unhandledDirectionalOrder < 0 && floorToAdd < currentStatus)))//ensures elev stopping for directional order prioritized those first.
     {
         insertIntoQueue(floorToAdd, 0);
         unhandledDirectionalOrder = 0;
