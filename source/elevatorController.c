@@ -208,6 +208,10 @@ void printQueue()
 		printf("%d", target_floor_queue[i]);
 		printf(" ");
 	}
+    if(unhandledDirectionalOrder){
+        printf("    unhandledDirOrder: ");
+        printf("%d", unhandledDirectionalOrder);
+    }
 	printf("\n");
 }
 
