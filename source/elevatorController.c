@@ -111,7 +111,7 @@ void addToQueue(int floorToAdd)
         return;
     }
 
-    for (int i = 1; i < target_floor_queue_size; i++) //there is really no need for this to be a loop, as the queue should never exceed two elements
+    for (int i = 1; i < target_floor_queue_size; i++)
     {
         if (target_floor_queue[i] < 0)
         {
@@ -132,7 +132,7 @@ void addToQueue(int floorToAdd)
             signCurrentDir = (target_floor_queue[i] - target_floor_queue[i-1])/abs(target_floor_queue[i] - target_floor_queue[i-1]);
         }
 
-        if ((signCurrentDir == dirRequested || (!dirRequested)) &&
+        if ((signCurrentDir == dirRequested) &&
             max(target_floor_queue[i], target_floor_queue[i-1]) > floorToAdd && 
             min(target_floor_queue[i], target_floor_queue[i-1]) < floorToAdd) //floor is enroute
         {
