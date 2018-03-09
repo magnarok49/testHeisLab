@@ -332,7 +332,7 @@ void pollButtons(){
 
 void goToDestination()
 {
-    if (target_floor_queue[0] > -1 && timerStatus())
+    if (target_floor_queue[0] > -1 && isTimerFinished())
     {
         moveElevator(getDestinationDir());
     }
