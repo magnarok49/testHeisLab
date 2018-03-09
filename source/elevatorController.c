@@ -207,7 +207,8 @@ void moveElevator(elev_motor_direction_t direction)
 
 void printQueue()
 {
-	printf("\033[F"); //should go up one line and clear it, untested
+	//printf("\033[F" + "\033[K"); //should go up one line and clear it, untested
+    printf("\033[F");
     printf("\033[K");
     for(int i = 0; i < target_floor_queue_size - 1; i++)
 	{
