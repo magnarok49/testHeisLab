@@ -27,6 +27,7 @@ double get_wall_time(void)
     return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
 
+
 void shiftFromQueue()
 {
     for (int i = 0; i < (target_floor_queue_size - 1); i++)
