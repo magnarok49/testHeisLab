@@ -11,5 +11,5 @@ void checkTimer();
 
 void setTimer();
 
-bool timerStatus();
+bool isTimerFinished();
 

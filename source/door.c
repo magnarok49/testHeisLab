@@ -32,7 +32,7 @@ void setTimer()
     doorTimer = get_wall_time();
 }
 
-bool timerStatus()
+bool isTimerFinished()
 {
     return doorTimer == 0;
 }
