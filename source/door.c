@@ -3,8 +3,16 @@
 #include "elevatorController.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include <sys/time.h>
 
 timer doorTimer = 0;
+
+double getWallTime()
+{
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    return (double)time.tv_sec + (double)time.tv_usec * .000001;
+}
 
 void openDoor()
 {
@@ -18,7 +26,7 @@ void closeDoor()
 
 void checkTimer()
 {
-    if (doorTimer && (get_wall_time() - doorTimer) > 3)
+    if (doorTimer && (getWallTime() - doorTimer) > 3)
     {
         doorTimer = 0;
         closeDoor();
@@ -29,7 +37,7 @@ void checkTimer()
 void setTimer()
 {
     openDoor();
-    doorTimer = get_wall_time();
+    doorTimer = getWallTime();
 }
 
 bool isTimerFinished()

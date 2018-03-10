@@ -7,6 +7,9 @@ void closeDoor();
 
 typedef double timer;
 
+/*returns the current unix time. With millisecond precision*/
+double getWallTime();
+
 void checkTimer();
 
 void setTimer();

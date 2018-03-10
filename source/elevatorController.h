@@ -13,10 +13,7 @@ typedef enum elev_status {
     FLOOR_TWO,
     FLOOR_THREE,
     FLOOR_FOUR
-} elev_status_enum;
-
-/*returns the current unix time. With millisecond precision*/
-double get_wall_time(void);
+} elevStatusEnum;
 
 /*removes the first element from the destination queue
 * used upon reaching the destination floor*/
