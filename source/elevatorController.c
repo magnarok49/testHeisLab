@@ -293,6 +293,7 @@ void emergencyStop()
         continue;
     }
     elev_set_stop_lamp(0);
+    //if elevator is on a floor when emergency button is hit, door remains open 3s after em. button is released
     if (elev_get_floor_sensor_signal() != -1)
     {
         setTimer();
