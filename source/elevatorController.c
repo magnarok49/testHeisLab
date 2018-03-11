@@ -124,11 +124,27 @@ void addToQueue(int floorToAdd)
             signCurrentDir = (targetFloorQueue[i] - targetFloorQueue[i-1])/abs(targetFloorQueue[i] - targetFloorQueue[i-1]);
         }
 
-        if ((signCurrentDir == dirRequested) &&
+        if ((signCurrentDir == dirRequested || (!dirRequested)) &&
             max(targetFloorQueue[i], targetFloorQueue[i-1]) > floorToAdd && 
-            min(targetFloorQueue[i], targetFloorQueue[i-1]) < floorToAdd) //floor is enroute
+            min(targetFloorQueue[i], targetFloorQueue[i-1]) < floorToAdd) //floor is enroute, potential problem here with passing 3rd floor heading down and ordering 3 on elev.
         {
-            return;
+            //return; //OLD CODE, BEFORE (!dirRequested) was part of test
+            if(!dirRequested) // NEW CODE
+            {
+                if ((signCurrentDir > 0 && orders[floorToAdd].down)||
+                    (signCurrentDir < 0 && orders[floorToAdd].up)) //if there is an order present for the opposite direction
+                {
+                    dirRequested = -1 * signCurrentDir;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                return;
+            } //NEW CODE ENDED
         } 
         else if ((signCurrentDir >= 0 && targetFloorQueue[i] <= floorToAdd) || //decided if the new floor is further than the existing destination for that direction
                 (signCurrentDir <= 0 && targetFloorQueue[i] >= floorToAdd)) //if so, overwrite the existing destination
@@ -143,7 +159,7 @@ void addToQueue(int floorToAdd)
                 targetFloorQueue[i] = floorToAdd;
                 return;
         }
-    }
+    }//for loop end
 }
 
 void clearQueueAndOrders()
