@@ -16,8 +16,8 @@ elev_motor_direction_t dir = 0;                                     //1 for up, 
 int target_floor_queue[N_FLOORS] = {-1,-1,-1,-1};                   //investigate reducing size of queue
 int target_floor_queue_size = N_FLOORS;                             //arbitrary size, could be halved..
 bool unhandledEmergency = false;                                    //bool used for keeping track of strange destinations as a result of emergency stops between floors.
-int unhandledDirectionalOrder = 0;
-double positionOnEmergency = -1; 
+int unhandledDirectionalOrder = 0;                                  //int used to help handling directional problems when adding to queue
+double positionOnEmergency = -1;                                    //double used to keep track of where elevator was when emergency button was hit between floors
 
 //public methods for elevatorController
 double get_wall_time(void)
