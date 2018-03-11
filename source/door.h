@@ -1,6 +1,5 @@
 #include <stdbool.h>
 
-typedef enum doorStatus {OPEN = 1,CLOSED = 0}doorStatus_t;
 
 typedef double timer; //defines a timer of type double
 
