@@ -372,6 +372,7 @@ elev_motor_direction_t getDestinationDir(){
 
 void runElevator()
 {
+    printf("\nSacrificial line to ensure printQueue doesn't flush terminal call..\n");
     driveToInitialState();
     while (1)
     {
