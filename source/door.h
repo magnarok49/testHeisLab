@@ -1,18 +1,24 @@
 #include <stdbool.h>
 
-typedef enum doorStatus {OPEN = 1,CLOSED = 0}doorStatus_t;
 
-void openDoor();
-void closeDoor();
+typedef double timer; //defines a timer of type double
 
-typedef double timer;
-
-/*returns the current unix time. With millisecond precision*/
+/*returns the current unix time with millisecond precision*/
 double getWallTime();
 
-void checkTimer();
+/*opens elevator door (turn elevator door lights on)*/
+void openDoor();
 
-void setTimer();
+/*closes elevator door (turn elevator door lights off)*/
+void closeDoor();
 
-bool isTimerFinished();
+/*checks if timer har surpassed 3 seconds, if so timer is set low and door is closed*/
+void checkTimer(); 
+
+/*opens door & sets a timer to wall time*/
+void setTimer(); 
+
+/*returns a bool depending on timer being active or not
+  returns true if timer not active and false if timer active*/
+bool isTimerFinished(); 
 
