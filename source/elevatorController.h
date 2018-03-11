@@ -78,7 +78,9 @@ void pollButtons();
 elev_motor_direction_t getDestinationDir();
 
 /*The main loop for the elevator
-* runs here as long as stop button isn't pressed*/
+* drives elevator to initial state
+* enters operating loop 
+* only function called from main to make the elevator operational*/
 void runElevator();
 
 /*sets the elevator running in the direction given by

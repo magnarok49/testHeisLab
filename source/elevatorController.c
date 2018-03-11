@@ -418,7 +418,8 @@ elev_motor_direction_t getDestinationDir()
     return DIRN_STOP; 
 }
 
-void runElevator()
+
+void runElevator() 
 {
     printf("\nElevator is initializing...\n");
     driveToInitialState();
