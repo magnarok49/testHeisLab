@@ -4,13 +4,19 @@ typedef enum doorStatus {OPEN = 1,CLOSED = 0}doorStatus_t;
 
 typedef double timer; //defines a timer of type double
 
-void openDoor(); //opens elevator door (turn elevator door lights on)
+/*opens elevator door (turn elevator door lights on)*/
+void openDoor();
 
-void closeDoor(); //closes elevator door (turn elevator door lights off)
+/*closes elevator door (turn elevator door lights off)*/
+void closeDoor();
 
-void checkTimer(); //checks if timer har surpassed 3 seconds, if so timer is set low and door is closed
+/*checks if timer har surpassed 3 seconds, if so timer is set low and door is closed*/
+void checkTimer(); 
 
-void setTimer(); //opens door & sets a timer to wall time
+/*opens door & sets a timer to wall time*/
+void setTimer(); 
 
-bool isTimerFinished(); //returns a bool depending on timer being active or not. Returns true if timer not active and false if timer active.
+/*returns a bool depending on timer being active or not
+  returns true if timer not active and false if timer active*/
+bool isTimerFinished(); 
 
