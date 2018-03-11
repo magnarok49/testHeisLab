@@ -7,18 +7,36 @@
 #include <stdlib.h>
 #include "door.h"
 
-//private variables for elevatorController
-orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};   //should match button lights and thus unhandled requests. (dynamic construction of structs)
-elevStatusEnum lastFloor = -1;                                      //0 through N_FLOORS - 1, should match elevator status light on panel. Should only be -1 before init..
-elevStatusEnum currentStatus = -1;                                  //contains floor sensor reading
-elev_motor_direction_t dir = 0;                                     //1 for up, 0 for stationary and -1 for down
-elevStatusEnum targetFloorQueue[N_FLOORS] = {-1,-1,-1,-1};          //End destinations in a fifo-style container
-int targetFloorQueueSize = N_FLOORS;                                //could be one less, but avoiding bad_access exceptions if something messes up
-bool unhandledEmergency = false;                                    //bool used for keeping track of strange destinations as a result of emergency stops between floors.
-int unhandledDirectionalOrder = 0;                                  //saves the requested direction when stopping for a directional request, so it will be prioritized
-double positionOnEmergency = -1;                                    //used to remember between-floors location on emergency stops 
+//private variables for elevatorController --------------------------------------
 
-//public methods for elevatorController
+//should match button lights and thus unhandled requests. (dynamic construction of structs)
+orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
+
+//0 through N_FLOORS - 1, should match elevator status light on panel. Should only be -1 before init..
+elevStatusEnum lastFloor = -1;
+
+//contains floor sensor reading, 0 through 3 for floors, and -1 for between floors.
+elevStatusEnum currentStatus = -1;
+
+//1 for up, 0 for stationary and -1 for down.
+elev_motor_direction_t dir = 0;
+
+//End destinations in a fifo-style queue.
+elevStatusEnum targetFloorQueue[N_FLOORS] = {-1,-1,-1,-1};
+
+//Size of queue, used for functions like insertIntoQueue and shiftFromQueue.
+int targetFloorQueueSize = N_FLOORS;
+
+//bool used for remembering if there is already an unhandled emergency between floors.
+bool unhandledEmergency = false;
+
+//Saves the requested direction when stopping for a directional request, so it will be prioritized.
+int unhandledDirectionalOrder = 0;
+
+//Used to remember between-floors location on emergency stops. 
+double positionOnEmergency = -1;
+
+//public methods for elevatorController --------------------------------------------------------
 void shiftFromQueue()
 {
     for (int i = 0; i < (targetFloorQueueSize - 1); i++)
@@ -28,7 +46,8 @@ void shiftFromQueue()
     targetFloorQueue[targetFloorQueueSize - 1] = -1;
 }
 
-void insertIntoQueue(int value, int index){ //inserts before given index
+void insertIntoQueue(int value, int index)
+{
 	for (int i = targetFloorQueueSize - 1; i > index; i--)
     {
         targetFloorQueue[i] = targetFloorQueue[i-1];
@@ -44,42 +63,48 @@ void addToQueue(int floorToAdd)
         targetFloorQueue[0] = floorToAdd;
         return;
     }
-    else if (targetFloorQueue[0] == floorToAdd) //queue is empty..
+    else if (targetFloorQueue[0] == floorToAdd) //already the first destination
     { 
         return;
     }
 
-    //Figuring out which direction the new order has.
-    int dirRequested = -2; //0 for either, -1 for down etc..
     elev_motor_direction_t signCurrentDir = getDestinationDir();
 
+    //Figuring out which direction the new order has. -----------------
+    int dirRequested = 0;
+
+    //if elevator should stop on given floor as soon as possible.
     if (orders[floorToAdd].elev || floorToAdd == (N_FLOORS - 1) || floorToAdd == 0 || 
-        (orders[floorToAdd].up && orders[floorToAdd].down)) //if elevator should stop on given floor as soon as possible
+        (orders[floorToAdd].up && orders[floorToAdd].down))
     {
         dirRequested = 0;
     }
-    else //if the floor only has one direction ordered.
+    else
     {
         dirRequested = orders[floorToAdd].up - orders[floorToAdd].down;
     }
+    //direction decided -----------------------------------------------
 
+    /*ensures that when stopping for a directional order,
+    * that direction is priotized afterwards.*/
     if (unhandledDirectionalOrder &&
         ((unhandledDirectionalOrder > 0 && floorToAdd > currentStatus)||
-        (unhandledDirectionalOrder < 0 && floorToAdd < currentStatus)))//ensures elev stopping for directional order prioritized those first.
+        (unhandledDirectionalOrder < 0 && floorToAdd < currentStatus)))
     {
         insertIntoQueue(floorToAdd, 0);
         unhandledDirectionalOrder = 0;
         return;
     }
-
-
+    /*if the order is already along the current route,
+    * or the elevator is already at the current floor.*/
     else if ((signCurrentDir == dirRequested || (!dirRequested)) &&
         ((max(targetFloorQueue[0], lastFloor) > floorToAdd && 
         min(targetFloorQueue[0], lastFloor) < floorToAdd ) ||
-        (currentStatus > -1 && floorToAdd == currentStatus))) //if direction matches and floor is enroute
+        (currentStatus > -1 && floorToAdd == currentStatus)))
     {
+        //if there is an order placed for the opposite direction 
         if((orders[floorToAdd].up && signCurrentDir < 0) || 
-        	(orders[floorToAdd].down && signCurrentDir > 0)) //if there is an order placed for the opposite direction 
+        	(orders[floorToAdd].down && signCurrentDir > 0))
         {
         	dirRequested = -1*signCurrentDir;
         }
@@ -87,22 +112,25 @@ void addToQueue(int floorToAdd)
         {
             return;
         }
-    } 
+    }
+    //if floor is further along in the current direction
     else if ((signCurrentDir > 0 && targetFloorQueue[0] < floorToAdd) ||
-            (signCurrentDir < 0 && targetFloorQueue[0] > floorToAdd)) //if floor is the new extremity in the current direction
+            (signCurrentDir < 0 && targetFloorQueue[0] > floorToAdd))
     {
+        /*if the current destination has an order that doesn't match the current direction
+        * this ensures that the elevator will turn around and handle that order afterwards.*/
         if(((orders[targetFloorQueue[0]].up && signCurrentDir < 0) ||
         	(orders[targetFloorQueue[0]].down && signCurrentDir > 0)) &&
-        	targetFloorQueue[1] == -1) //no need to insert if elevator is already turning around after the first stop
+        	targetFloorQueue[1] == -1)
         {
-
         	insertIntoQueue(floorToAdd,0);
         	return;
         }
         targetFloorQueue[0] = floorToAdd;
         return;
     }
-
+    /*iterates through the rest of the queue, 
+    * similarly to the code above.*/
     for (int i = 1; i < targetFloorQueueSize; i++)
     {
         if (targetFloorQueue[i] < 0)
@@ -114,8 +142,9 @@ void addToQueue(int floorToAdd)
         {
             return;
         }
-        
-        if(targetFloorQueue[i] == targetFloorQueue[i-1])//SHOULD NEVER HAPPEN
+        /*In normal conditions this never happens, 
+        * but remains as a failsafe to ensure zero divisions cannot occur.*/
+        if(targetFloorQueue[i] == targetFloorQueue[i-1])
         {
             signCurrentDir = 0;
         }
@@ -126,13 +155,14 @@ void addToQueue(int floorToAdd)
 
         if ((signCurrentDir == dirRequested || (!dirRequested)) &&
             max(targetFloorQueue[i], targetFloorQueue[i-1]) > floorToAdd && 
-            min(targetFloorQueue[i], targetFloorQueue[i-1]) < floorToAdd) //floor is enroute, potential problem here with passing 3rd floor heading down and ordering 3 on elev.
+            min(targetFloorQueue[i], targetFloorQueue[i-1]) < floorToAdd)
         {
-            //return; //OLD CODE, BEFORE (!dirRequested) was part of test
-            if(!dirRequested) // NEW CODE
+            /*Ensures both directions get handled if the
+            * order still has a stop regardless state*/
+            if(!dirRequested)
             {
                 if ((signCurrentDir > 0 && orders[floorToAdd].down)||
-                    (signCurrentDir < 0 && orders[floorToAdd].up)) //if there is an order present for the opposite direction
+                    (signCurrentDir < 0 && orders[floorToAdd].up))
                 {
                     dirRequested = -1 * signCurrentDir;
                 }
@@ -144,20 +174,22 @@ void addToQueue(int floorToAdd)
             else
             {
                 return;
-            } //NEW CODE ENDED
+            }
         } 
-        else if ((signCurrentDir >= 0 && targetFloorQueue[i] <= floorToAdd) || //decided if the new floor is further than the existing destination for that direction
-                (signCurrentDir <= 0 && targetFloorQueue[i] >= floorToAdd)) //if so, overwrite the existing destination
+        else if ((signCurrentDir >= 0 && targetFloorQueue[i] <= floorToAdd) ||
+                (signCurrentDir <= 0 && targetFloorQueue[i] >= floorToAdd))
         {
-		if(((orders[targetFloorQueue[i]].up && signCurrentDir < 0 && targetFloorQueue[i] < lastFloor) ||
-        	(orders[targetFloorQueue[i]].down && signCurrentDir > 0 && targetFloorQueue[i] > lastFloor)))
+		    /*As with before, this test ensures that orders 
+            *of opposite direction don't get overwritten*/
+            if(((orders[targetFloorQueue[i]].up && signCurrentDir < 0 && targetFloorQueue[i] < lastFloor) ||
+        	    (orders[targetFloorQueue[i]].down && signCurrentDir > 0 && targetFloorQueue[i] > lastFloor)))
         	{
 
         		insertIntoQueue(floorToAdd,i);
         		return;
         	}
-                targetFloorQueue[i] = floorToAdd;
-                return;
+            targetFloorQueue[i] = floorToAdd;
+            return;
         }
     }//for loop end
 }
@@ -200,13 +232,16 @@ void driveToInitialState()
     currentStatus = elev_get_floor_sensor_signal();
     lastFloor = currentStatus;
     elev_set_floor_indicator(currentStatus);
-    setTimer();
+    setTimer(); //this line can be omitted if initializing shouldn't cause doors to open
 }
 
 void moveElevator(elev_motor_direction_t direction)
 {
     dir = direction;
     elev_set_motor_direction(direction);
+    
+    /*resets the directional order flag, 
+    * as it should no longer be prioritized after the floor that set the flag*/
     if (direction)
     {
         unhandledDirectionalOrder = 0;
@@ -235,11 +270,14 @@ void emergencyStop()
     elev_set_motor_direction(DIRN_STOP);
     clearQueueAndOrders();
     elev_set_stop_lamp(1);
+
+    //currently on a floor
     if (elev_get_floor_sensor_signal() != -1)
     {
         openDoor();
         dir = 0;
     }
+    //currently between floors, calculates intermediate postition.
     else 
     {
         if(!unhandledEmergency && dir != 0)
@@ -248,6 +286,8 @@ void emergencyStop()
         }
         unhandledEmergency = 1;
     }
+
+    //freezes the function until the user releases the button 
     while (elev_get_stop_signal())
     {
         continue;
@@ -263,12 +303,15 @@ void reachedFloor(int floor)
 {
     elev_set_floor_indicator(floor);
     lastFloor = floor;
-    currentStatus = floor;//SUPERFLUOUS... currentStatus already set to same floor in main loop
+    currentStatus = floor;
+
+    //if stopping for an end destination
     if (targetFloorQueue[0] == floor)
     {
-        if(floor < (N_FLOORS - 1) && floor > 0) //makes elevator tend to continueing in a given direction, rather than turning on endpoints.
+        /*Makes the elevator tend to continue along it's current direction.*/
+        if(floor < (N_FLOORS - 1) && floor > 0)
         {
-            unhandledDirectionalOrder = dir;//EMERGENCY STOP NEEDS FIXING, DIR SHOULD ALWAYS REFLECT DRIVING DIRECTION
+            unhandledDirectionalOrder = dir;
         }
         
         shiftFromQueue();
@@ -287,7 +330,10 @@ void reachedFloor(int floor)
         moveElevator(DIRN_STOP);
         setTimer();
     }
-    else if ((orders[floor].elev) || (getDestinationDir() == DIRN_UP && orders[floor].up) || (getDestinationDir() == DIRN_DOWN && orders[floor].down))
+    //if stopping as an intermediate stop 
+    else if ((orders[floor].elev) || 
+            (getDestinationDir() == DIRN_UP && orders[floor].up) || 
+            (getDestinationDir() == DIRN_DOWN && orders[floor].down))
     {
         if (orders[floor].elev)
         {
@@ -341,7 +387,8 @@ void goToDestination()
     }
 }
 
-elev_motor_direction_t getDestinationDir(){
+elev_motor_direction_t getDestinationDir()
+{
     if (targetFloorQueue[0] > -1)
     {
         if(unhandledEmergency)
@@ -372,7 +419,7 @@ elev_motor_direction_t getDestinationDir(){
 
 void runElevator()
 {
-    printf("\nSacrificial line to ensure printQueue doesn't flush terminal call..\n");
+    printf("\nElevator is initializing...\n");
     driveToInitialState();
     while (1)
     {

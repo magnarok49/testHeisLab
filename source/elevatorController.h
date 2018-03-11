@@ -19,7 +19,7 @@ typedef enum elev_status {
 * used upon reaching the destination floor*/
 void shiftFromQueue();
 
-/*Inserts value element into the destination queue
+/*Inserts value into the destination queue
 * BEFORE the given index*/
 void insertIntoQueue(int value, int index);
 
@@ -27,20 +27,19 @@ void insertIntoQueue(int value, int index);
 * prints the current destination queue to terminal*/
 void printQueue();
 
-/*the workhorse of the queue setup
-* adds a given floor to the destination queue
+/*Adds a given floor to the destination queue
 * given that it is not already in the current route.
-* this function relies on the orders array,
-* which has to updated for addToQueue to work properly*/
+* this function relies on the orders array, which
+* has to updated beforehand for addToQueue to work properly*/
 void addToQueue(int floorToAdd);
 
-/*drives the elevator to a known state upon startup
+/*Drives the elevator to a known state upon startup
 * tends downward.
 * requires the elevator to be within working range*/
 void driveToInitialState(void);
 
 /*sets the elevator running in a given direction
-* if there is not an unhandled emergency it sets the dir variable*/
+* updates dir variable*/
 void moveElevator(elev_motor_direction_t direction);
 
 /*Clears everything regarding destination handling,
@@ -48,7 +47,7 @@ void moveElevator(elev_motor_direction_t direction);
 * Used only in emergencyStop.*/
 void clearQueueAndOrders();
 
-/*Stops the elevator immediately:
+/*Stops the elevator immediately.
 * Clears all existing orders.
 * Ignores all other buttons while button is held down.
 * If on a floor:
@@ -66,15 +65,15 @@ void emergencyStop();
 void reachedFloor(int floor);
 
 /*Checks every ordinary button:
-* if not already saved in orders (IE. unhandled press registered):
+* if there is a new unhandled press:
 *     lights up the given button
 *     updates orders
 *     calls addToQueue*/
 void pollButtons();
 
 /*Determines the direction to the destination
-* uses lastfloor and dir if there is an unhandled emergency present.
-* otherwise, uses only lastfloor.
+* uses separate position variable if there was an emergency. 
+* otherwise, uses lastfloor.
 * If no current destination, return DIRN_STOP = 0*/
 elev_motor_direction_t getDestinationDir();
 

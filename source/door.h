@@ -18,7 +18,6 @@ void checkTimer();
 /*opens door & sets a timer to wall time*/
 void setTimer(); 
 
-/*returns a bool depending on timer being active or not
-  returns true if timer not active and false if timer active*/
+/*bool that is true as long as there is no timer running.*/
 bool isTimerFinished(); 
 
