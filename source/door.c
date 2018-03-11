@@ -18,7 +18,7 @@ void closeDoor()
 
 void checkTimer()
 {
-    if (doorTimer && (get_wall_time() - doorTimer) > 3)
+    if (doorTimer && (getWallTime() - doorTimer) > 3)
     {
         doorTimer = 0;
         closeDoor();
