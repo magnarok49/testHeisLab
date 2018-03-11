@@ -20,7 +20,7 @@ int unhandledDirectionalOrder = 0;                                  //int used t
 double positionOnEmergency = -1;                                    //double used to keep track of where elevator was when emergency button was hit between floors
 
 //public methods for elevatorController
-double get_wall_time(void)
+double getWallTime(void)
 {
     struct timeval time;
     gettimeofday(&time, NULL);

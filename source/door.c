@@ -29,7 +29,7 @@ void checkTimer()
 void setTimer()
 {
     openDoor();
-    doorTimer = get_wall_time();
+    doorTimer = getWallTime();
 }
 
 bool isTimerFinished()

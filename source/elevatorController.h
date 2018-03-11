@@ -16,7 +16,7 @@ typedef enum elev_status {
 } elev_status_enum;
 
 /*returns the current unix time. With millisecond precision*/
-double get_wall_time(void);
+double getWallTime(void);
 
 /*removes the first element from the destination queue
 * used upon reaching the destination floor*/
