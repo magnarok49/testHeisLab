@@ -30,7 +30,7 @@ void printQueue();
 /*Adds a given floor to the destination queue
 * given that it is not already in the current route.
 * this function relies on the orders array, which
-* has to updated beforehand for addToQueue to work properly*/
+* has to be updated beforehand for addToQueue to work properly*/
 void addToQueue(int floorToAdd);
 
 /*Drives the elevator to a known state upon startup
