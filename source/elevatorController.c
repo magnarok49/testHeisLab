@@ -1,7 +1,7 @@
 #include "elevatorController.h"
 #include "elev.h"
 #include <stdio.h>
-#include <string.h>//do we even use this?
+#include <string.h>
 #include <assert.h>
 #include "utilities.h"
 #include <stdlib.h>
@@ -9,7 +9,7 @@
 
 //private variables for elevatorController --------------------------------------
 
-//should match button lights and thus unhandled requests. (dynamic construction of structs)
+//should match button lights and thus unhandled orders. (dynamic construction of structs)
 orderStruct orders[N_FLOORS] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
 
 //0 through N_FLOORS - 1, should match elevator status light on panel. Should only be -1 before init..
@@ -30,7 +30,7 @@ int targetFloorQueueSize = N_FLOORS;
 //bool used for remembering if there is already an unhandled emergency between floors.
 bool unhandledEmergency = false;
 
-//Saves the requested direction when stopping for a directional request, so it will be prioritized.
+//Saves the requested direction when stopping for a directional order, so it will be prioritized.
 int unhandledDirectionalOrder = 0;
 
 //Used to remember between-floors location on emergency stops. 
@@ -202,7 +202,8 @@ void clearQueueAndOrders()
         targetFloorQueue[i] = -1;
         ++i;
     }
-    for (int j = 0; j < N_FLOORS; j++)//clearing orders array and turning off eventual lights
+    //clearing orders array and turning off eventual lights
+    for (int j = 0; j < N_FLOORS; j++)
     {
         if (orders[j].elev)
         {
@@ -240,8 +241,8 @@ void moveElevator(elev_motor_direction_t direction)
     dir = direction;
     elev_set_motor_direction(direction);
     
-    /*resets the directional order flag, 
-    * as it should no longer be prioritized after the floor that set the flag*/
+    /*resets the directional order flag, as it should no longer
+    * be prioritized after leaving the floor that set the flag*/
     if (direction)
     {
         unhandledDirectionalOrder = 0;
@@ -250,7 +251,7 @@ void moveElevator(elev_motor_direction_t direction)
 
 void printQueue()
 {
-	printf("\033[F"); //goes up one line in the console
+	printf("\033[F"); //moves cursor up one line in the console
     printf("\033[K"); //clears line
     for(int i = 0; i < targetFloorQueueSize - 1; i++)
 	{
@@ -309,13 +310,14 @@ void reachedFloor(int floor)
     //if stopping for an end destination
     if (targetFloorQueue[0] == floor)
     {
-        /*Makes the elevator tend to continue along it's current direction.*/
+        /*Flag to make the elevator tend to continue along it's current direction.*/
         if(floor < (N_FLOORS - 1) && floor > 0)
         {
             unhandledDirectionalOrder = dir;
         }
         
         shiftFromQueue();
+
         if(floor < 3)
         {
             orders[floor].up = 0;
@@ -328,6 +330,7 @@ void reachedFloor(int floor)
         }
         orders[floor].elev = 0;
         elev_set_button_lamp(BUTTON_COMMAND,floor,0);
+
         moveElevator(DIRN_STOP);
         setTimer();
     }
@@ -428,7 +431,7 @@ void runElevator()
         currentStatus = elev_get_floor_sensor_signal();
         pollButtons();
         printQueue();
-        if(currentStatus > -1)
+        if(currentStatus > -1) //currently on a floor
         {
             unhandledEmergency = 0;
             positionOnEmergency = -1;
