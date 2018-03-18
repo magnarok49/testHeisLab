@@ -35212,8 +35212,8 @@
 									"showShadow": true,
 									"containerChangeable": false,
 									"containerExtending": false,
-									"left": 508,
-									"top": 472,
+									"left": 517,
+									"top": 464,
 									"width": 158.9833984375,
 									"height": 13,
 									"autoResize": false,
@@ -35247,8 +35247,8 @@
 									"showShadow": true,
 									"containerChangeable": false,
 									"containerExtending": false,
-									"left": 583,
-									"top": 486,
+									"left": 592,
+									"top": 479,
 									"width": 0,
 									"height": 13,
 									"autoResize": false,
@@ -35281,8 +35281,8 @@
 									"showShadow": true,
 									"containerChangeable": false,
 									"containerExtending": false,
-									"left": 596,
-									"top": 443,
+									"left": 603,
+									"top": 435,
 									"width": 0,
 									"height": 13,
 									"autoResize": false,
@@ -35314,7 +35314,7 @@
 								"$ref": "AAAAAAFiCfoCLcOUVyg="
 							},
 							"lineStyle": 1,
-							"points": "727:427;592:464;473:427",
+							"points": "727:425;600:456;473:424",
 							"stereotypeDisplay": "label",
 							"showVisibility": true,
 							"showProperty": true,
@@ -35327,6 +35327,29 @@
 							"propertyLabel": {
 								"$ref": "AAAAAAFiCfu+jMRkwOM="
 							}
+						},
+						{
+							"_type": "UMLNoteView",
+							"_id": "AAAAAAFiOVnxZJhpHJ4=",
+							"_parent": {
+								"$ref": "AAAAAAFiCfnF7sNTuAQ="
+							},
+							"visible": true,
+							"enabled": true,
+							"lineColor": "#000000",
+							"fillColor": "#ffffff",
+							"fontColor": "#000000",
+							"font": "Arial;13;0",
+							"showShadow": true,
+							"containerChangeable": false,
+							"containerExtending": false,
+							"left": 576,
+							"top": 184,
+							"width": 233,
+							"height": 129,
+							"autoResize": false,
+							"text": "As we have not implemented a state machine, we have chosen to include a symbolic state-diagram containing only states reflecting our implementation. As a result, logic concerning standby, moving, doors open etc. is shown in the sequence diagrams. ",
+							"wordWrap": true
 						}
 					]
 				}
